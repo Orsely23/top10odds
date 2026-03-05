@@ -130,37 +130,38 @@
         const status = document.getElementById('status');
         let allMarkets = [];
 
-        async function init() {
-            status.innerText = "Syncing Live Market Data...";
-            try {
-                // Fetching from the most reliable direct source
-                const response = await fetch('https://raw.githubusercontent.com/Puter-Data/Polymarket-Mirror/main/data.json');
-                if (!response.ok) throw new Error("Sync Failed");
+       async function init() {
+    status.innerText = "Syncing Live Market Data...";
+    try {
+        // We use a professional CORS proxy to bypass GitHub's security blocks
+        const proxy = 'https://api.allorigins.win/raw?url=';
+        const target = encodeURIComponent('https://raw.githubusercontent.com/Puter-Data/Polymarket-Mirror/main/data.json');
+        
+        const response = await fetch(proxy + target);
+        if (!response.ok) throw new Error("Sync Failed");
 
-                const data = await response.json();
-                
-                allMarkets = data.slice(0, 50).map(m => {
-                    // Fix: If probability is 0.65, make it 65. If it's already 65, keep it.
-                    let p = m.probability;
-                    if (p > 0 && p < 1) p = Math.round(p * 100);
-                    else p = Math.round(p);
+        const data = await response.json();
+        
+        allMarkets = data.slice(0, 50).map(m => {
+            let p = m.probability;
+            if (p > 0 && p < 1) p = Math.round(p * 100);
+            else p = Math.round(p);
 
-                    return { 
-                        prob: p, 
-                        title: m.title,
-                        volume: m.volume24h ? formatVol(m.volume24h) : '$--'
-                    };
-                });
-                
-                render(allMarkets);
-                status.innerText = "Live System Active • " + allMarkets.length + " Markets Loaded";
-            } catch (e) {
-                console.error(e);
-                status.innerText = "Sync Error. Retrying in 10s...";
-                setTimeout(init, 10000);
-            }
-        }
-
+            return { 
+                prob: p, 
+                title: m.title,
+                volume: m.volume24h ? formatVol(m.volume24h) : '$--'
+            };
+        });
+        
+        render(allMarkets);
+        status.innerText = "Live System Active • " + allMarkets.length + " Markets Loaded";
+    } catch (e) {
+        console.error("Fetch Error:", e);
+        status.innerText = "Security Handshake Failed. Retrying...";
+        setTimeout(init, 10000);
+    }
+}
         function formatVol(n) {
             let num = parseFloat(n);
             if (isNaN(num)) return '$--';
@@ -200,3 +201,4 @@
     </script>
 </body>
 </html>
+

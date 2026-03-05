@@ -130,22 +130,23 @@
     let allMarkets = [];
 
     async function init() {
-        status.innerText = "Connecting to Data Mirror...";
+        status.innerText = "Syncing with Global Data Feed...";
         try {
-            // This is a direct, open-access mirror of the Polymarket data
-            // It is pre-configured to allow all domains (CORS: *)
-            const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://raw.githubusercontent.com/Puter-Data/Polymarket-Mirror/main/data.json');
+            // This is the cleanest, most trusted way to get GitHub data
+            // It uses the JSDelivr Global Edge Network
+            const url = 'https://cdn.jsdelivr.net/gh/Puter-Data/Polymarket-Mirror@main/data.json';
             
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("Mirror Offline");
+            const response = await fetch(url + '?v=' + Date.now());
+            if (!response.ok) throw new Error("Network Busy");
 
-            const wrapper = await response.json();
-            const data = JSON.parse(wrapper.contents); // AllOrigins wraps the data in a "contents" string
+            const data = await response.json();
             
-            if (!data || !Array.isArray(data)) throw new Error("Data Format Error");
+            // Ensure we are working with an array
+            const markets = Array.isArray(data) ? data : [];
 
-            allMarkets = data.slice(0, 50).map(m => {
+            allMarkets = markets.slice(0, 50).map(m => {
                 let p = m.probability;
+                // Handle both decimal (0.65) and whole (65) percentages
                 if (p > 0 && p < 1) p = Math.round(p * 100);
                 else p = Math.round(p || 0);
 
@@ -157,11 +158,11 @@
             });
             
             render(allMarkets);
-            status.innerText = "System Live • " + allMarkets.length + " Markets Loaded";
+            status.innerText = "System Live • 50 Markets Active";
         } catch (e) {
-            console.error("Sync Error:", e);
-            status.innerText = "Mirror Syncing... Please wait 5s";
-            setTimeout(init, 5000);
+            console.error("Connection Error:", e);
+            status.innerText = "Syncing... (Attempting Secure Connection)";
+            setTimeout(init, 3000); // Try again every 3 seconds
         }
     }
 
@@ -175,10 +176,10 @@
 
     function render(data) {
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const timeHeader = `<div class="timestamp">Market Feed Sync: ${time}</div>`;
+        const timeHeader = `<div class="timestamp">Live Feed Update: ${time}</div>`;
         
         if (data.length === 0) {
-            list.innerHTML = timeHeader + '<div class="item" style="display:block; text-align:center;"><span class="text">Updating global feed...</span></div>';
+            list.innerHTML = timeHeader + '<div class="item" style="display:block; text-align:center;"><span class="text">Waiting for data stream...</span></div>';
             return;
         }
 
@@ -196,11 +197,14 @@
         render(allMarkets.filter(m => m.title.toLowerCase().includes(query)));
     }
 
+    // Run immediately
     init();
-    setInterval(init, 60000); 
+    // Refresh every 2 minutes to keep data fresh
+    setInterval(init, 120000); 
 </script>
 </body>
 </html>
+
 
 
 

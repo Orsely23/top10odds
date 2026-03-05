@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/odds",
+      "destination": "https://raw.githubusercontent.com/Puter-Data/Polymarket-Mirror/main/data.json"
+    }
+  ]
+}

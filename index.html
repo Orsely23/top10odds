@@ -34,58 +34,66 @@
     let allMarkets = [];
 
     async function init() {
-        status.innerText = "Connecting to Global Feed...";
+        status.innerText = "Synchronizing Data Feed...";
         try {
-            // This proxy is designed for production sites to bypass security blocks
-            const proxyUrl = 'https://api.allorigins.win/get?url=';
-            const targetUrl = encodeURIComponent('https://raw.githubusercontent.com/Puter-Data/Polymarket-Mirror/main/data.json');
+            // Using the JSDelivr Network - specifically built to bypass domain blocks
+            const url = 'https://cdn.jsdelivr.net/gh/Puter-Data/Polymarket-Mirror@main/data.json';
             
-            const response = await fetch(proxyUrl + targetUrl);
+            const response = await fetch(url + '?nocache=' + Date.now());
             if (!response.ok) throw new Error("Network Busy");
 
-            const wrapper = await response.json();
-            // AllOrigins puts the data inside a "contents" string
-            const data = JSON.parse(wrapper.contents);
+            const data = await response.json();
+            
+            // Validate the data structure
+            const rawData = Array.isArray(data) ? data : [];
 
-            allMarkets = data.slice(0, 50).map(m => {
+            allMarkets = rawData.slice(0, 50).map(m => {
                 let p = m.probability || 0;
+                // Convert 0.65 to 65 or keep 65 as 65
                 if (p > 0 && p < 1) p = Math.round(p * 100);
                 else p = Math.round(p);
-                
-                return {
-                    prob: p,
-                    title: m.title || "Market Item",
+
+                return { 
+                    prob: p, 
+                    title: m.title || "Market Loading...",
                     volume: m.volume24h ? formatVol(m.volume24h) : '$0'
                 };
             });
-
+            
             render(allMarkets);
-            status.style.color = "#34a853"; 
-            status.innerText = "● SYSTEM LIVE: 50 MARKETS ACTIVE";
+            status.style.color = "#34a853";
+            status.innerText = "● LIVE SYSTEM ACTIVE • 50 MARKETS";
         } catch (e) {
             console.error("Sync Error:", e);
-            status.innerText = "Syncing... (Handshake in progress)";
-            setTimeout(init, 5000);
+            status.innerText = "Connecting... (Secure Handshake)";
+            setTimeout(init, 4000); // Retry every 4 seconds
         }
     }
 
     function formatVol(n) {
         let num = parseFloat(n);
         if (isNaN(num)) return '$0';
-        if (num >= 1000000) return '$' + (num/1000000).toFixed(1) + 'M';
-        if (num >= 1000) return '$' + (num/1000).toFixed(1) + 'K';
+        if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return '$' + (num / 1000).toFixed(1) + 'K';
         return '$' + Math.round(num);
     }
 
     function render(data) {
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        let html = `<div class="timestamp">Last Updated: ${time} (Live Feed)</div>`;
+        let html = `<div class="timestamp">Market Update: ${time} (Global Feed)</div>`;
+        
+        if (data.length === 0) {
+            list.innerHTML = html + '<div style="padding:40px; text-align:center;">Receiving data stream...</div>';
+            return;
+        }
+
         data.forEach(m => {
-            html += `<div class="item">
-                <span class="percentage">${m.prob}%</span>
-                <span class="text">odds that ${m.title}</span>
-                <span class="volume-badge">${m.volume}</span>
-            </div>`;
+            html += `
+                <div class="item">
+                    <span class="percentage">${m.prob}%</span>
+                    <span class="text">odds that ${m.title}</span>
+                    <span class="volume-badge">${m.volume}</span>
+                </div>`;
         });
         list.innerHTML = html;
     }
@@ -95,10 +103,13 @@
         render(allMarkets.filter(m => m.title.toLowerCase().includes(query)));
     }
 
+    // Start the system
     init();
-    setInterval(init, 60000); // Auto-update every 60 seconds
+    // Refresh every 60 seconds
+    setInterval(init, 60000);
 </script>
 </body>
 </html>
+
 
 

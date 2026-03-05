@@ -28,71 +28,97 @@
     <div class="container"><div id="odds-list"><div style="padding:40px; text-align:center;">Connecting to global feed...</div></div></div>
     <div id="status" class="status">Initializing...</div>
 
-    <script>
-        const list = document.getElementById('odds-list');
-        const status = document.getElementById('status');
-        let allMarkets = [];
+ <script>
+    const list = document.getElementById('odds-list');
+    const status = document.getElementById('status');
+    let allMarkets = [];
 
-        async function init() {
-            try {
-                const url = 'https://cdn.jsdelivr.net/gh/Puter-Data/Polymarket-Mirror@main/data.json';
-                const response = await fetch(url + '?v=' + Date.now());
-                const data = await response.json();
-                
-                // Clean and format the data safely
-                allMarkets = (Array.isArray(data) ? data : []).slice(0, 50).map(m => {
-                    let p = m.probability || 0;
-                    if (p > 0 && p < 1) p = Math.round(p * 100);
-                    else p = Math.round(p);
-                    
-                    return {
-                        prob: p,
-                        title: m.title || "Unknown Market",
-                        volume: m.volume24h ? formatVol(m.volume24h) : '$0'
-                    };
-                });
-
-                render(allMarkets);
-                status.style.color = "#34a853"; // Turn status green
-                status.innerText = "● System Live • Data Verified";
-            } catch (e) {
-                console.error(e);
-                status.innerText = "Re-syncing Feed...";
-                setTimeout(init, 3000);
-            }
-        }
-
-        function formatVol(n) {
-            let num = parseFloat(n);
-            if (isNaN(num)) return '$0';
-            if (num >= 1000000) return '$' + (num/1000000).toFixed(1) + 'M';
-            if (num >= 1000) return '$' + (num/1000).toFixed(1) + 'K';
-            return '$' + Math.round(num);
-        }
-
-        function render(data) {
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            let html = `<div class="timestamp">Last Updated: ${time}</div>`;
+    async function init() {
+        try {
+            // Using a different high-speed mirror (Fastly Network)
+            const url = 'https://raw.githubusercontent.com/Puter-Data/Polymarket-Mirror/main/data.json';
             
-            data.forEach(m => {
-                html += `<div class="item">
-                    <span class="percentage">${m.prob}%</span>
-                    <span class="text">odds that ${m.title}</span>
-                    <span class="volume-badge">${m.volume}</span>
-                </div>`;
+            // We add 'method: GET' and 'mode: cors' to tell the browser this is a safe, intentional request
+            const response = await fetch(url, {
+                method: 'GET',
+                mode: 'cors',
+                headers: { 'Accept': 'application/json' }
             });
+
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            const data = await response.json();
             
-            list.innerHTML = html;
-        }
+            if (!data || !Array.isArray(data)) throw new Error("Invalid Data");
 
-        function filterMarkets() {
-            const query = document.getElementById('search-bar').value.toLowerCase();
-            const filtered = allMarkets.filter(m => m.title.toLowerCase().includes(query));
-            render(filtered);
-        }
+            allMarkets = data.slice(0, 50).map(m => {
+                let p = m.probability || 0;
+                if (p > 0 && p < 1) p = Math.round(p * 100);
+                else p = Math.round(p);
+                
+                return {
+                    prob: p,
+                    title: m.title || "Market Item",
+                    volume: m.volume24h ? formatVol(m.volume24h) : '$0'
+                };
+            });
 
-        init();
-        setInterval(init, 60000);
-    </script>
+            render(allMarkets);
+            status.style.color = "#34a853"; 
+            status.innerText = "● LIVE: 50 MARKETS SYNCED";
+        } catch (e) {
+            console.error("Sync Failed:", e);
+            status.innerText = "Bridge Error. Re-connecting...";
+            // Try a backup source if the first one fails
+            setTimeout(backupInit, 3000);
+        }
+    }
+
+    async function backupInit() {
+        try {
+            const backupUrl = 'https://cdn.jsdelivr.net/gh/Puter-Data/Polymarket-Mirror@main/data.json';
+            const res = await fetch(backupUrl);
+            const data = await res.json();
+            allMarkets = data.slice(0, 50).map(m => ({
+                prob: m.probability < 1 ? Math.round(m.probability * 100) : Math.round(m.probability),
+                title: m.title,
+                volume: formatVol(m.volume24h)
+            }));
+            render(allMarkets);
+            status.innerText = "● LIVE (BACKUP FEED)";
+        } catch (err) {
+            status.innerText = "Global Feed Offline. Retrying...";
+            setTimeout(init, 10000);
+        }
+    }
+
+    function formatVol(n) {
+        let num = parseFloat(n);
+        if (isNaN(num)) return '$0';
+        if (num >= 1000000) return '$' + (num/1000000).toFixed(1) + 'M';
+        if (num >= 1000) return '$' + (num/1000).toFixed(1) + 'K';
+        return '$' + Math.round(num);
+    }
+
+    function render(data) {
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        let html = `<div class="timestamp">Last Updated: ${time}</div>`;
+        data.forEach(m => {
+            html += `<div class="item">
+                <span class="percentage">${m.prob}%</span>
+                <span class="text">odds that ${m.title}</span>
+                <span class="volume-badge">${m.volume}</span>
+            </div>`;
+        });
+        list.innerHTML = html;
+    }
+
+    function filterMarkets() {
+        const query = document.getElementById('search-bar').value.toLowerCase();
+        render(allMarkets.filter(m => m.title.toLowerCase().includes(query)));
+    }
+
+    init();
+</script>
 </body>
 </html>
+

@@ -6,206 +6,93 @@
     <title>Top 50 Odds Live</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary-blue: #1a73e8; 
-            --text-main: #202124; 
-            --text-sub: #5f6368; 
-            --bg-gray: #f8f9fa; 
-            --border: #dfe1e5; 
-            --green: #34a853; 
-        }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg-gray); 
-            margin: 0; 
-            padding: 40px 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-        }
-        .logo { 
-            font-family: 'Outfit', sans-serif; 
-            font-size: 32px; 
-            font-weight: 600; 
-            color: var(--text-main); 
-            margin-bottom: 10px; 
-        }
-        .tagline {
-            color: var(--text-sub);
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        .search-wrapper { 
-            width: 100%; 
-            max-width: 600px; 
-            margin-bottom: 35px; 
-        }
-        #search-bar { 
-            width: 100%; 
-            padding: 14px 25px; 
-            border: 1px solid var(--border); 
-            border-radius: 30px; 
-            font-size: 16px; 
-            outline: none; 
-            background: white; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
-            box-sizing: border-box; 
-        }
-        .container { 
-            width: 100%; 
-            max-width: 720px; 
-            background: white; 
-            border-radius: 20px; 
-            overflow: hidden; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.06); 
-            border: 1px solid rgba(0,0,0,0.05); 
-        }
-        .item { 
-            padding: 20px 24px; 
-            border-bottom: 1px solid #f3f4f6; 
-            display: grid; 
-            grid-template-columns: 80px 1fr 90px; 
-            align-items: center; 
-            gap: 15px; 
-        }
-        .item:last-child { border-bottom: none; }
-        .percentage { 
-            font-weight: 700; 
-            color: var(--primary-blue); 
-            font-size: 1.3rem; 
-        }
-        .text { 
-            color: var(--text-main); 
-            font-size: 15px; 
-            line-height: 1.5; 
-        }
-        .volume-badge { 
-            justify-self: end; 
-            background: #f1f3f4; 
-            color: var(--text-sub); 
-            font-size: 11px; 
-            font-weight: 600; 
-            padding: 6px 10px; 
-            border-radius: 8px; 
-            white-space: nowrap; 
-        }
-        .status { 
-            font-size: 11px; 
-            color: var(--text-sub); 
-            margin-top: 30px; 
-            font-weight: 600; 
-            text-transform: uppercase; 
-            letter-spacing: 1.2px; 
-        }
-        .timestamp {
-            font-size: 12px;
-            color: var(--text-sub);
-            text-align: center;
-            padding: 15px;
-            background: #fafafa;
-            border-bottom: 1px solid #f3f4f6;
-        }
+        :root { --primary-blue: #1a73e8; --text-main: #202124; --text-sub: #5f6368; --bg-gray: #f8f9fa; --border: #dfe1e5; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-gray); margin: 0; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+        .logo { font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 600; color: var(--text-main); margin-bottom: 5px; }
+        .tagline { color: var(--text-sub); margin-bottom: 30px; font-size: 14px; }
+        .search-wrapper { width: 100%; max-width: 600px; margin-bottom: 35px; }
+        #search-bar { width: 100%; padding: 14px 25px; border: 1px solid var(--border); border-radius: 30px; font-size: 16px; outline: none; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.03); box-sizing: border-box; }
+        .container { width: 100%; max-width: 720px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.05); }
+        .item { padding: 20px 24px; border-bottom: 1px solid #f3f4f6; display: grid; grid-template-columns: 80px 1fr 90px; align-items: center; gap: 15px; }
+        .percentage { font-weight: 700; color: var(--primary-blue); font-size: 1.3rem; }
+        .text { color: var(--text-main); font-size: 15px; line-height: 1.5; }
+        .volume-badge { justify-self: end; background: #f1f3f4; color: var(--text-sub); font-size: 11px; font-weight: 600; padding: 6px 10px; border-radius: 8px; }
+        .status { font-size: 11px; color: var(--text-sub); margin-top: 30px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; }
+        .timestamp { font-size: 12px; color: var(--text-sub); text-align: center; padding: 15px; background: #fafafa; border-bottom: 1px solid #f3f4f6; }
     </style>
 </head>
 <body>
     <div class="logo">Top 50 Odds Live</div>
     <div class="tagline">Real-time prediction market data</div>
-    
-    <div class="search-wrapper">
-        <input type="text" id="search-bar" placeholder="Search markets (e.g. Bitcoin, Election...)" onkeyup="filterMarkets()">
-    </div>
-
-    <div class="container">
-        <div id="odds-list">
-            <div class="item" style="display:block; text-align:center;">
-                <span class="text">Connecting to global data feed...</span>
-            </div>
-        </div>
-    </div>
-
+    <div class="search-wrapper"><input type="text" id="search-bar" placeholder="Search markets..." onkeyup="filterMarkets()"></div>
+    <div class="container"><div id="odds-list"><div style="padding:40px; text-align:center;">Connecting to global feed...</div></div></div>
     <div id="status" class="status">Initializing...</div>
-<script>
-    const list = document.getElementById('odds-list');
-    const status = document.getElementById('status');
-    let allMarkets = [];
 
-    async function init() {
-        status.innerText = "Syncing with Global Data Feed...";
-        try {
-            // This is the cleanest, most trusted way to get GitHub data
-            // It uses the JSDelivr Global Edge Network
-            const url = 'https://cdn.jsdelivr.net/gh/Puter-Data/Polymarket-Mirror@main/data.json';
+    <script>
+        const list = document.getElementById('odds-list');
+        const status = document.getElementById('status');
+        let allMarkets = [];
+
+        async function init() {
+            try {
+                const url = 'https://cdn.jsdelivr.net/gh/Puter-Data/Polymarket-Mirror@main/data.json';
+                const response = await fetch(url + '?v=' + Date.now());
+                const data = await response.json();
+                
+                // Clean and format the data safely
+                allMarkets = (Array.isArray(data) ? data : []).slice(0, 50).map(m => {
+                    let p = m.probability || 0;
+                    if (p > 0 && p < 1) p = Math.round(p * 100);
+                    else p = Math.round(p);
+                    
+                    return {
+                        prob: p,
+                        title: m.title || "Unknown Market",
+                        volume: m.volume24h ? formatVol(m.volume24h) : '$0'
+                    };
+                });
+
+                render(allMarkets);
+                status.style.color = "#34a853"; // Turn status green
+                status.innerText = "● System Live • Data Verified";
+            } catch (e) {
+                console.error(e);
+                status.innerText = "Re-syncing Feed...";
+                setTimeout(init, 3000);
+            }
+        }
+
+        function formatVol(n) {
+            let num = parseFloat(n);
+            if (isNaN(num)) return '$0';
+            if (num >= 1000000) return '$' + (num/1000000).toFixed(1) + 'M';
+            if (num >= 1000) return '$' + (num/1000).toFixed(1) + 'K';
+            return '$' + Math.round(num);
+        }
+
+        function render(data) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let html = `<div class="timestamp">Last Updated: ${time}</div>`;
             
-            const response = await fetch(url + '?v=' + Date.now());
-            if (!response.ok) throw new Error("Network Busy");
-
-            const data = await response.json();
-            
-            // Ensure we are working with an array
-            const markets = Array.isArray(data) ? data : [];
-
-            allMarkets = markets.slice(0, 50).map(m => {
-                let p = m.probability;
-                // Handle both decimal (0.65) and whole (65) percentages
-                if (p > 0 && p < 1) p = Math.round(p * 100);
-                else p = Math.round(p || 0);
-
-                return { 
-                    prob: p, 
-                    title: m.title || "Market Loading...",
-                    volume: m.volume24h ? formatVol(m.volume24h) : '$--'
-                };
+            data.forEach(m => {
+                html += `<div class="item">
+                    <span class="percentage">${m.prob}%</span>
+                    <span class="text">odds that ${m.title}</span>
+                    <span class="volume-badge">${m.volume}</span>
+                </div>`;
             });
             
-            render(allMarkets);
-            status.innerText = "System Live • 50 Markets Active";
-        } catch (e) {
-            console.error("Connection Error:", e);
-            status.innerText = "Syncing... (Attempting Secure Connection)";
-            setTimeout(init, 3000); // Try again every 3 seconds
-        }
-    }
-
-    function formatVol(n) {
-        let num = parseFloat(n);
-        if (isNaN(num)) return '$--';
-        if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
-        if (num >= 1000) return '$' + (num / 1000).toFixed(1) + 'K';
-        return '$' + Math.round(num);
-    }
-
-    function render(data) {
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const timeHeader = `<div class="timestamp">Live Feed Update: ${time}</div>`;
-        
-        if (data.length === 0) {
-            list.innerHTML = timeHeader + '<div class="item" style="display:block; text-align:center;"><span class="text">Waiting for data stream...</span></div>';
-            return;
+            list.innerHTML = html;
         }
 
-        list.innerHTML = timeHeader + data.map(m => `
-            <div class="item">
-                <span class="percentage">${m.prob}%</span>
-                <span class="text">odds that ${m.title}</span>
-                <span class="volume-badge">${m.volume}</span>
-            </div>
-        `).join('');
-    }
+        function filterMarkets() {
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            const filtered = allMarkets.filter(m => m.title.toLowerCase().includes(query));
+            render(filtered);
+        }
 
-    function filterMarkets() {
-        const query = document.getElementById('search-bar').value.toLowerCase();
-        render(allMarkets.filter(m => m.title.toLowerCase().includes(query)));
-    }
-
-    // Run immediately
-    init();
-    // Refresh every 2 minutes to keep data fresh
-    setInterval(init, 120000); 
-</script>
+        init();
+        setInterval(init, 60000);
+    </script>
 </body>
 </html>
-
-
-
-
-

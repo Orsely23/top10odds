@@ -124,81 +124,83 @@
     </div>
 
     <div id="status" class="status">Initializing...</div>
+<script>
+    const list = document.getElementById('odds-list');
+    const status = document.getElementById('status');
+    let allMarkets = [];
 
-    <script>
-        const list = document.getElementById('odds-list');
-        const status = document.getElementById('status');
-        let allMarkets = [];
-
-       async function init() {
-    status.innerText = "Syncing Live Market Data...";
-    try {
-        // We use a professional CORS proxy to bypass GitHub's security blocks
-        const proxy = 'https://api.allorigins.win/raw?url=';
-        const target = encodeURIComponent('https://raw.githubusercontent.com/Puter-Data/Polymarket-Mirror/main/data.json');
-        
-        const response = await fetch(proxy + target);
-        if (!response.ok) throw new Error("Sync Failed");
-
-        const data = await response.json();
-        
-        allMarkets = data.slice(0, 50).map(m => {
-            let p = m.probability;
-            if (p > 0 && p < 1) p = Math.round(p * 100);
-            else p = Math.round(p);
-
-            return { 
-                prob: p, 
-                title: m.title,
-                volume: m.volume24h ? formatVol(m.volume24h) : '$--'
-            };
-        });
-        
-        render(allMarkets);
-        status.innerText = "Live System Active • " + allMarkets.length + " Markets Loaded";
-    } catch (e) {
-        console.error("Fetch Error:", e);
-        status.innerText = "Security Handshake Failed. Retrying...";
-        setTimeout(init, 10000);
-    }
-}
-        function formatVol(n) {
-            let num = parseFloat(n);
-            if (isNaN(num)) return '$--';
-            if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return '$' + (num / 1000).toFixed(1) + 'K';
-            return '$' + Math.round(num);
-        }
-
-        function render(data) {
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const timeHeader = `<div class="timestamp">Last Updated: ${time} (Live Feed)</div>`;
+    async function init() {
+        status.innerText = "Syncing Live Market Data...";
+        try {
+            // Using JSDelivr - the most reliable way to get GitHub data on a live site
+            const url = 'https://cdn.jsdelivr.net/gh/Puter-Data/Polymarket-Mirror@main/data.json';
             
-            if (data.length === 0) {
-                list.innerHTML = timeHeader + '<div class="item" style="display:block; text-align:center;"><span class="text">No markets match your search.</span></div>';
-                return;
-            }
+            const response = await fetch(url + '?nocache=' + new Date().getTime());
+            if (!response.ok) throw new Error("Server Response Error");
 
-            list.innerHTML = timeHeader + data.map(m => `
-                <div class="item">
-                    <span class="percentage">${m.prob}%</span>
-                    <span class="text">odds that ${m.title}</span>
-                    <span class="volume-badge">${m.volume}</span>
-                </div>
-            `).join('');
+            const data = await response.json();
+            
+            // Safety check: ensure we have an array
+            const dataArray = Array.isArray(data) ? data : (data.markets || []);
+
+            allMarkets = dataArray.slice(0, 50).map(m => {
+                let p = m.probability;
+                // Convert 0.65 to 65% or leave 65 as 65%
+                if (p > 0 && p < 1) p = Math.round(p * 100);
+                else p = Math.round(p || 0);
+
+                return { 
+                    prob: p, 
+                    title: m.title || "Unknown Market",
+                    volume: m.volume24h ? formatVol(m.volume24h) : '$--'
+                };
+            });
+            
+            render(allMarkets);
+            status.innerText = "Live System Active • " + allMarkets.length + " Markets Loaded";
+        } catch (e) {
+            console.error("Sync Error:", e);
+            status.innerText = "Connection Slow. Retrying...";
+            // Try again in 5 seconds
+            setTimeout(init, 5000);
+        }
+    }
+
+    function formatVol(n) {
+        let num = parseFloat(n);
+        if (isNaN(num)) return '$--';
+        if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return '$' + (num / 1000).toFixed(1) + 'K';
+        return '$' + Math.round(num);
+    }
+
+    function render(data) {
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const timeHeader = `<div class="timestamp">Last Updated: ${time} (Live Feed)</div>`;
+        
+        if (!data || data.length === 0) {
+            list.innerHTML = timeHeader + '<div class="item" style="display:block; text-align:center;"><span class="text">Waiting for data stream...</span></div>';
+            return;
         }
 
-        function filterMarkets() {
-            const query = document.getElementById('search-bar').value.toLowerCase();
-            const filtered = allMarkets.filter(m => m.title.toLowerCase().includes(query));
-            render(filtered);
-        }
+        list.innerHTML = timeHeader + data.map(m => `
+            <div class="item">
+                <span class="percentage">${m.prob}%</span>
+                <span class="text">odds that ${m.title}</span>
+                <span class="volume-badge">${m.volume}</span>
+            </div>
+        `).join('');
+    }
 
-        // Run
-        init();
-        // Refresh every 60 seconds
-        setInterval(init, 60000);
-    </script>
+    function filterMarkets() {
+        const query = document.getElementById('search-bar').value.toLowerCase();
+        render(allMarkets.filter(m => m.title.toLowerCase().includes(query)));
+    }
+
+    init();
+    setInterval(init, 60000); // Auto-refresh every minute
+</script>
 </body>
 </html>
+
 

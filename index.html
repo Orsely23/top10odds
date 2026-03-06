@@ -31,86 +31,58 @@
 <script>
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
-    let allMarkets = [];
 
     async function init() {
-        status.innerText = "Filtering Live Markets...";
+        status.innerText = "Running Diagnostic View...";
         try {
             const response = await fetch('./data.json?v=' + Date.now());
             const rawData = await response.json();
             
-            allMarkets = (rawData || []).map(event => {
+            let html = `<div class="timestamp">Diagnostic Mode: Showing Filtered Items</div>`;
+            
+            rawData.forEach(event => {
                 const mainMarket = event.markets ? event.markets[0] : null;
-                if (!mainMarket) return null;
+                if (!mainMarket) return;
 
-                // 1. SKIP ARCHIVED OR RESOLVED
-                if (mainMarket.closed || mainMarket.resolved) return null;
-
-                // 2. CLEAN TITLE
-                let eventTitle = (event.title || "").replace(/by ___ \?/g, "").trim();
-                let marketChoice = mainMarket.groupItemTitle || "";
-                let displayTitle = marketChoice && !eventTitle.includes(marketChoice) 
-                    ? `${eventTitle} (${marketChoice})` 
-                    : eventTitle;
-
-                // 3. BETTER PRICE LOGIC (Targeting the 'Yes' price correctly)
+                // --- LOGIC CHECK ---
                 let p = 0;
                 try {
-                    const prices = typeof mainMarket.outcomePrices === 'string' 
-                        ? JSON.parse(mainMarket.outcomePrices) 
-                        : mainMarket.outcomePrices;
-                    
-                    // Most markets are [Yes, No]. We want Yes (Index 0).
+                    const prices = JSON.parse(mainMarket.outcomePrices);
                     p = parseFloat(prices[0]);
-                } catch(e) {
-                    p = parseFloat(mainMarket.price || 0);
-                }
+                } catch(e) { p = parseFloat(mainMarket.price || 0); }
 
-                // FIX: If p is exactly 1, 0, or 0.99, it's often a dead/zombie contract
-                // Real active markets rarely sit at exactly 99% unless the news just broke
-                if (p > 0.98 || p < 0.01) return null; 
+                const isZombie = (p >= 0.99 || p <= 0.01 || mainMarket.active === false);
+                const prob = Math.round(p * 100);
+                const title = (event.title || "").replace(/by ___ \?/g, "").trim();
+                const choice = mainMarket.groupItemTitle || "";
+                
+                // --- RENDER WITH COLORS ---
+                // Red = Hidden/Zombie | Green = Active/Shown
+                const color = isZombie ? "#ff4d4d" : "#00ff88";
+                const label = isZombie ? "[HIDDEN/ZOMBIE]" : "[ACTIVE]";
 
-                return { 
-                    prob: Math.round(p * 100), 
-                    title: displayTitle,
-                    volume: event.volume ? formatVol(event.volume) : '$--'
-                };
-            }).filter(item => item !== null); // This removes the 99% zombies
+                html += `
+                <div class="item" style="border-left: 4px solid ${color}; margin-bottom: 5px; opacity: ${isZombie ? '0.6' : '1'}">
+                    <span class="percentage" style="color: ${color}">${prob}%</span>
+                    <span class="text" style="color: ${isZombie ? '#aaa' : '#fff'}">
+                        <small style="color:${color}">${label}</small><br>
+                        odds for ${title} (${choice})
+                    </span>
+                    <span class="volume-badge">${event.volume || '$0'}</span>
+                </div>`;
+            });
             
-            render(allMarkets);
-            status.style.color = "#34a853";
-            status.innerText = "● SYSTEM LIVE: ACTIVE MARKETS ONLY";
+            list.innerHTML = html;
+            status.innerText = "● DIAGNOSTIC COMPLETE";
         } catch (e) {
-            status.innerText = "Syncing Feed...";
-            setTimeout(init, 5000);
+            status.innerText = "Error loading data.json";
         }
     }
-
-    function formatVol(n) {
-        let num = parseFloat(n);
-        if (isNaN(num) || num === 0) return '$--';
-        if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
-        if (num >= 1000) return '$' + (num / 1000).toFixed(1) + 'K';
-        return '$' + Math.round(num);
-    }
-
-    function render(data) {
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        let html = `<div class="timestamp">Live Feed Update: ${time}</div>`;
-        data.forEach(m => {
-            html += `<div class="item">
-                <span class="percentage">${m.prob}%</span>
-                <span class="text">odds for ${m.title}</span>
-                <span class="volume-badge">${m.volume}</span>
-            </div>`;
-        });
-        list.innerHTML = html;
-    }
-
     init();
 </script>
 </body>
 </html>
+
 
 
 

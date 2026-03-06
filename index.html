@@ -33,55 +33,66 @@
     const status = document.getElementById('status');
 
     async function init() {
-        status.innerText = "Running Diagnostic View...";
+        status.innerText = "Scanning 100+ Markets...";
         try {
             const response = await fetch('./data.json?v=' + Date.now());
             const rawData = await response.json();
             
-            let html = `<div class="timestamp">Diagnostic Mode: Showing Filtered Items</div>`;
-            
+            let html = `<div class="timestamp">Live Feed Update: ${new Date().toLocaleTimeString()}</div>`;
+            let activeCount = 0;
+
             rawData.forEach(event => {
                 const mainMarket = event.markets ? event.markets[0] : null;
                 if (!mainMarket) return;
 
-                // --- LOGIC CHECK ---
+                // GET PRICE
                 let p = 0;
                 try {
                     const prices = JSON.parse(mainMarket.outcomePrices);
                     p = parseFloat(prices[0]);
                 } catch(e) { p = parseFloat(mainMarket.price || 0); }
 
+                // RELAXED FILTER: Only hide the absolute 0% or 100% zombies
                 const isZombie = (p >= 0.99 || p <= 0.01 || mainMarket.active === false);
-                const prob = Math.round(p * 100);
-                const title = (event.title || "").replace(/by ___ \?/g, "").trim();
-                const choice = mainMarket.groupItemTitle || "";
                 
-                // --- RENDER WITH COLORS ---
-                // Red = Hidden/Zombie | Green = Active/Shown
-                const color = isZombie ? "#ff4d4d" : "#00ff88";
-                const label = isZombie ? "[HIDDEN/ZOMBIE]" : "[ACTIVE]";
+                // DATA PREP
+                const prob = Math.round(p * 100);
+                const eventTitle = (event.title || "").replace(/by ___ \?/g, "").trim();
+                const choice = mainMarket.groupItemTitle || "";
+                const displayTitle = choice && !eventTitle.includes(choice) ? `${eventTitle} (${choice})` : eventTitle;
 
-                html += `
-                <div class="item" style="border-left: 4px solid ${color}; margin-bottom: 5px; opacity: ${isZombie ? '0.6' : '1'}">
-                    <span class="percentage" style="color: ${color}">${prob}%</span>
-                    <span class="text" style="color: ${isZombie ? '#aaa' : '#fff'}">
-                        <small style="color:${color}">${label}</small><br>
-                        odds for ${title} (${choice})
-                    </span>
-                    <span class="volume-badge">${event.volume || '$0'}</span>
-                </div>`;
+                if (!isZombie) {
+                    activeCount++;
+                    html += `
+                    <div class="item">
+                        <span class="percentage">${prob}%</span>
+                        <span class="text">odds for ${displayTitle}</span>
+                        <span class="volume-badge">${formatVol(event.volume)}</span>
+                    </div>`;
+                }
             });
             
             list.innerHTML = html;
-            status.innerText = "● DIAGNOSTIC COMPLETE";
+            status.style.color = "#00ff88";
+            status.innerText = `● SYSTEM LIVE: ${activeCount} MARKETS TRACKED`;
         } catch (e) {
-            status.innerText = "Error loading data.json";
+            status.innerText = "Syncing Feed...";
         }
     }
+
+    function formatVol(n) {
+        let num = parseFloat(n);
+        if (isNaN(num) || num === 0) return '$--';
+        if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return '$' + (num / 1000).toFixed(1) + 'K';
+        return '$' + Math.round(num);
+    }
+
     init();
 </script>
 </body>
 </html>
+
 
 
 

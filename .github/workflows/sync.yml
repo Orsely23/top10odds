@@ -14,7 +14,7 @@ jobs:
         with:
           token: ${{ secrets.MY_TOKEN }}
       - name: Fetch
-        run: curl "https://gamma-api.polymarket.com/events?active=true&closed=false&archived=false&limit=50" -o data.json
+        run: curl "https://gamma-api.polymarket.com/events?active=true&closed=false&archived=false&limit=100" -o data.json
       - name: Save
         run: |
           git config user.name "github-actions[bot]"

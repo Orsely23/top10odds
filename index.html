@@ -44,36 +44,41 @@
                 const mainMarket = event.markets ? event.markets[0] : null;
                 if (!mainMarket) return null;
 
-                // 1. Get the better title (The one with the date)
-                let fullTitle = mainMarket.groupItemTitle || mainMarket.question || event.title;
-
-                // 2. Fix the 100% / NaN logic
-                let rawPrice = 0;
-                try {
-                    if (mainMarket.outcomePrices) {
-                        const prices = typeof mainMarket.outcomePrices === 'string' 
-                            ? JSON.parse(mainMarket.outcomePrices) 
-                            : mainMarket.outcomePrices;
-                        rawPrice = prices[0]; // Take 'Yes' price
-                    } else {
-                        rawPrice = mainMarket.price || mainMarket.lastTradePrice || 0;
-                    }
-                } catch(e) { rawPrice = 0; }
-
-                let p = parseFloat(rawPrice);
+                // 1. IMPROVED TITLE: Combine the Event (Question) + Market (Date/Choice)
+                let eventTitle = event.title || "";
+                let marketChoice = mainMarket.groupItemTitle || "";
                 
-                // If price is exactly 1 or greater than 1, it's often a glitch or a $1.00 close
-                // We cap it or adjust to ensure we don't show 100% for everything
-                if (p >= 1) p = p / 100; 
+                // If the choice is just a date, we combine them. 
+                // If they are the same, we just use one.
+                let displayTitle = eventTitle;
+                if (marketChoice && !eventTitle.includes(marketChoice)) {
+                    displayTitle = `${eventTitle} (${marketChoice})`;
+                }
+
+                // 2. FIXED PRICE LOGIC: Gamma API stores "Yes" prices as strings in outcomePrices
+                let p = 0;
+                try {
+                    const prices = typeof mainMarket.outcomePrices === 'string' 
+                        ? JSON.parse(mainMarket.outcomePrices) 
+                        : mainMarket.outcomePrices;
+                    
+                    // Prices are usually [Yes, No]. We want Yes.
+                    p = parseFloat(prices[0]);
+                } catch(e) {
+                    p = parseFloat(mainMarket.price || mainMarket.lastTradePrice || 0);
+                }
+
+                // Ensure p is a decimal (e.g., 0.65) and not a whole number glitch
+                if (p > 1) p = p / 100;
                 
                 let displayProb = Math.round(p * 100);
                 
-                // Safety filter: if it's still 100 or 0 for no reason, show a likely mid-point
-                if (displayProb === 100 && p === 1) displayProb = 50; 
+                // If it's still coming up as 0 but there is volume, it's likely a 1% or less market
+                if (displayProb === 0 && p > 0) displayProb = "<1";
 
                 return { 
                     prob: displayProb, 
-                    title: fullTitle,
+                    title: displayTitle,
                     volume: event.volume ? formatVol(event.volume) : '$--'
                 };
             }).filter(item => item !== null);
@@ -83,7 +88,7 @@
             status.innerText = "● SYSTEM LIVE: DATA SYNCED";
         } catch (e) {
             console.error(e);
-            status.innerText = "Syncing... (Refining Data)";
+            status.innerText = "Syncing... (Final Calibration)";
             setTimeout(init, 5000);
         }
     }
@@ -102,22 +107,18 @@
         data.forEach(m => {
             html += `<div class="item">
                 <span class="percentage">${m.prob}%</span>
-                <span class="text">odds that ${m.title}</span>
+                <span class="text">odds for ${m.title}</span>
                 <span class="volume-badge">${m.volume}</span>
             </div>`;
         });
         list.innerHTML = html;
     }
 
-    function filterMarkets() {
-        const query = document.getElementById('search-bar').value.toLowerCase();
-        render(allMarkets.filter(m => m.title.toLowerCase().includes(query)));
-    }
-
     init();
 </script>
 </body>
 </html>
+
 
 
 

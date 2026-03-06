@@ -40,23 +40,33 @@
             if (!response.ok) throw new Error("Data file not found");
             const rawData = await response.json();
             
-            // Polymarket API puts the odds inside 'markets' inside each 'event'
-            // This new logic extracts the correct numbers
             allMarkets = (rawData || []).map(event => {
                 const mainMarket = event.markets ? event.markets[0] : null;
                 if (!mainMarket) return null;
 
-                // Probability is stored as a decimal string like "0.65"
-                let p = parseFloat(mainMarket.outcomePrices ? mainMarket.outcomePrices[0] : 0);
+                // FIX: Gamma API usually stores prices in 'outcomePrices' as strings
+                // We check 'outcomePrices' first, then 'lastTradePrice' as a backup
+                let rawPrice = 0;
+                if (mainMarket.outcomePrices && mainMarket.outcomePrices[0]) {
+                    rawPrice = mainMarket.outcomePrices[0];
+                } else if (mainMarket.lastTradePrice) {
+                    rawPrice = mainMarket.lastTradePrice;
+                }
+
+                let p = parseFloat(rawPrice);
+                
+                // If it's still not a number, set to 0 to avoid NaN
+                if (isNaN(p)) p = 0;
+                
+                // Convert 0.65 to 65%
                 p = Math.round(p * 100);
 
                 return { 
                     prob: p, 
                     title: event.title || "Market Item",
-                    // Use a fallback for volume if the field name differs
                     volume: event.volume ? formatVol(event.volume) : '$--'
                 };
-            }).filter(item => item !== null); // Remove any broken items
+            }).filter(item => item !== null);
             
             render(allMarkets);
             status.style.color = "#34a853";
@@ -98,6 +108,7 @@
 </script>
 </body>
 </html>
+
 
 
 

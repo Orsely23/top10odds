@@ -1,5 +1,17 @@
 [
-  {"title": "Bitcoin reaches $100k in 2026", "probability": 0.65, "volume24h": "1200000"},
-  {"title": "Fed lowers interest rates in May", "probability": 0.42, "volume24h": "850000"},
-  {"title": "SpaceX Mars landing success", "probability": 0.15, "volume24h": "500000"}
+  {"title": "Bitcoin reaches $100k in 2026", "probability": 0.65, "volume24h": "12500000"},
+  {"title": "Fed lowers interest rates in June", "probability": 0.48, "volume24h": "8900000"},
+  {"title": "SpaceX Mars landing success by 2030", "probability": 0.12, "volume24h": "4500000"},
+  {"title": "Next UK General Election Winner: Labour", "probability": 0.72, "volume24h": "15600000"},
+  {"title": "Global temperature record broken in 2026", "probability": 0.85, "volume24h": "2100000"},
+  {"title": "Apple announces AI-native iPhone", "probability": 0.91, "volume24h": "32000000"},
+  {"title": "NVIDIA market cap exceeds $4T", "probability": 0.55, "volume24h": "18000000"},
+  {"title": "Tesla Robotaxi live in 3 cities", "probability": 0.31, "volume24h": "9800000"},
+  {"title": "Ethereum All-Time High in 2026", "probability": 0.58, "volume24h": "11200000"},
+  {"title": "AI wins a Nobel Prize by 2027", "probability": 0.22, "volume24h": "1400000"},
+  {"title": "Golden State Warriors win NBA Title", "probability": 0.18, "volume24h": "5600000"},
+  {"title": "First human on Moon since Apollo", "probability": 0.38, "volume24h": "7200000"},
+  {"title": "OpenAI releases GPT-5 by December", "probability": 0.77, "volume24h": "25000000"},
+  {"title": "Brent Crude stays above $80", "probability": 0.61, "volume24h": "6400000"},
+  {"title": "Manchester City wins Champions League", "probability": 0.45, "volume24h": "12900000"}
 ]

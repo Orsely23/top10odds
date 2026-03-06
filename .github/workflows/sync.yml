@@ -15,15 +15,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
-          # This uses the secret you'll add in Step 2
           token: ${{ secrets.MY_TOKEN }}
 
-      - name: Fetch Active Polymarket Data
+      - name: Fetch Live Data
         run: |
           curl "https://gamma-api.polymarket.com/events?active=true&closed=false&archived=false&limit=50" -o data.json
 
-      - name: Save and Push Data
+      - name: Save and Push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

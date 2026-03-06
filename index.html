@@ -44,25 +44,33 @@
                 const mainMarket = event.markets ? event.markets[0] : null;
                 if (!mainMarket) return null;
 
-                // FIX: Gamma API usually stores prices in 'outcomePrices' as strings
-                // We check 'outcomePrices' first, then 'lastTradePrice' as a backup
+                // SMART PRICE DETECTION
+                // We check outcomePrices, then clobTokenIds, then lastTradePrice
                 let rawPrice = 0;
-                if (mainMarket.outcomePrices && mainMarket.outcomePrices[0]) {
-                    rawPrice = mainMarket.outcomePrices[0];
-                } else if (mainMarket.lastTradePrice) {
-                    rawPrice = mainMarket.lastTradePrice;
+                
+                if (mainMarket.outcomePrices) {
+                    // Try to get the first price (usually 'Yes')
+                    rawPrice = JSON.parse(mainMarket.outcomePrices)[0];
+                } else if (mainMarket.bestBid) {
+                    rawPrice = mainMarket.bestBid;
+                } else if (mainMarket.price) {
+                    rawPrice = mainMarket.price;
                 }
 
                 let p = parseFloat(rawPrice);
-                
-                // If it's still not a number, set to 0 to avoid NaN
                 if (isNaN(p)) p = 0;
                 
-                // Convert 0.65 to 65%
-                p = Math.round(p * 100);
+                // Convert to whole percentage (e.g., 0.65 -> 65)
+                let displayProb = Math.round(p * 100);
+                
+                // Fallback: If it's 0, it might be that the price is stored differently
+                // Some events use 'active' status or different indexing
+                if (displayProb === 0 && mainMarket.lastTradePrice) {
+                    displayProb = Math.round(parseFloat(mainMarket.lastTradePrice) * 100);
+                }
 
                 return { 
-                    prob: p, 
+                    prob: displayProb, 
                     title: event.title || "Market Item",
                     volume: event.volume ? formatVol(event.volume) : '$--'
                 };
@@ -108,6 +116,7 @@
 </script>
 </body>
 </html>
+
 
 
 

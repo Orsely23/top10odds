@@ -34,61 +34,54 @@
     let allMarkets = [];
 
     async function init() {
-        status.innerText = "Processing Live Feed...";
+        status.innerText = "Filtering Live Markets...";
         try {
             const response = await fetch('./data.json?v=' + Date.now());
-            if (!response.ok) throw new Error("Data file not found");
             const rawData = await response.json();
             
             allMarkets = (rawData || []).map(event => {
                 const mainMarket = event.markets ? event.markets[0] : null;
                 if (!mainMarket) return null;
 
-                // 1. TITLE CLEANUP: Remove "by ___ ?" and fix spacing
+                // 1. SKIP ARCHIVED OR RESOLVED
+                if (mainMarket.closed || mainMarket.resolved) return null;
+
+                // 2. CLEAN TITLE
                 let eventTitle = (event.title || "").replace(/by ___ \?/g, "").trim();
                 let marketChoice = mainMarket.groupItemTitle || "";
-                let displayTitle = eventTitle;
-                
-                if (marketChoice && !eventTitle.includes(marketChoice)) {
-                    displayTitle = `${eventTitle} (${marketChoice})`;
-                }
+                let displayTitle = marketChoice && !eventTitle.includes(marketChoice) 
+                    ? `${eventTitle} (${marketChoice})` 
+                    : eventTitle;
 
-                // 2. DEEP PRICE SEARCH: Check the whole array for the best price
+                // 3. BETTER PRICE LOGIC (Targeting the 'Yes' price correctly)
                 let p = 0;
                 try {
                     const prices = typeof mainMarket.outcomePrices === 'string' 
                         ? JSON.parse(mainMarket.outcomePrices) 
                         : mainMarket.outcomePrices;
                     
-                    if (Array.isArray(prices)) {
-                        // We find the largest number in the array that isn't 1 (the 'Yes' price)
-                        const validPrices = prices.map(val => parseFloat(val)).filter(val => !isNaN(val));
-                        p = Math.max(...validPrices);
-                    }
+                    // Most markets are [Yes, No]. We want Yes (Index 0).
+                    p = parseFloat(prices[0]);
                 } catch(e) {
-                    p = parseFloat(mainMarket.price || mainMarket.lastTradePrice || 0);
+                    p = parseFloat(mainMarket.price || 0);
                 }
 
-                // If p is 1 (glitch), we treat it as 0.5 for now or pull last trade
-                if (p >= 1) p = parseFloat(mainMarket.lastTradePrice) || 0;
-                
-                let displayProb = Math.round(p * 100);
-                if (displayProb > 99) displayProb = 99; // Cap at 99 for active markets
-                if (displayProb === 0 && p > 0) displayProb = "<1";
+                // FIX: If p is exactly 1, 0, or 0.99, it's often a dead/zombie contract
+                // Real active markets rarely sit at exactly 99% unless the news just broke
+                if (p > 0.98 || p < 0.01) return null; 
 
                 return { 
-                    prob: displayProb, 
+                    prob: Math.round(p * 100), 
                     title: displayTitle,
                     volume: event.volume ? formatVol(event.volume) : '$--'
                 };
-            }).filter(item => item !== null);
+            }).filter(item => item !== null); // This removes the 99% zombies
             
             render(allMarkets);
             status.style.color = "#34a853";
-            status.innerText = "● SYSTEM LIVE: DATA SYNCED";
+            status.innerText = "● SYSTEM LIVE: ACTIVE MARKETS ONLY";
         } catch (e) {
-            console.error(e);
-            status.innerText = "Syncing... (Final Calibration)";
+            status.innerText = "Syncing Feed...";
             setTimeout(init, 5000);
         }
     }
@@ -103,7 +96,7 @@
 
     function render(data) {
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        let html = `<div class="timestamp">Live Update: ${time}</div>`;
+        let html = `<div class="timestamp">Live Feed Update: ${time}</div>`;
         data.forEach(m => {
             html += `<div class="item">
                 <span class="percentage">${m.prob}%</span>
@@ -118,6 +111,7 @@
 </script>
 </body>
 </html>
+
 
 
 

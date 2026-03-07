@@ -35,7 +35,6 @@
 </div>
 
 <script>
-    // These connect the HTML to the logic
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
     const btn = document.getElementById('load-btn');
@@ -54,11 +53,13 @@
             currentIndex = 0;
             list.innerHTML = "";
 
-            // Sort by Volume
+            // Sort Events by Total Volume first
             rawData.sort((a, b) => parseFloat(b.volume || 0) - parseFloat(a.volume || 0));
 
             rawData.forEach(event => {
                 if (!event.markets) return;
+                
+                // We only want the meaningful markets from each event
                 event.markets.forEach(market => {
                     try {
                         let p = 0;
@@ -67,7 +68,12 @@
                         p = Array.isArray(prices) ? parseFloat(prices[0]) : parseFloat(market.price || 0);
                         
                         const prob = Math.round(p * 100);
-                        if (prob >= 99 || prob <= 1 || market.active === false) return;
+
+                        // NEW BRAIN FILTERS:
+                        // 1. Hide Long Shots (under 5%)
+                        // 2. Hide "Done Deals" (over 95%)
+                        // 3. Ensure the market is actually active
+                        if (prob < 5 || prob > 95 || market.active === false) return;
 
                         allMarkets.push({
                             prob: prob,
@@ -79,10 +85,13 @@
                 });
             });
 
+            // Final Sort: Ensure the highest volume "Headlines" are at the top
+            allMarkets.sort((a, b) => parseFloat(b.volume) - parseFloat(a.volume));
+
             status.style.color = "#00ff88";
-            status.innerText = `● SYSTEM LIVE: ${allMarkets.length} MARKETS`;
+            status.innerText = `● SYSTEM LIVE: ${allMarkets.length} HEADLINES`;
             
-            loadNext(); // First batch
+            loadNext(); 
 
         } catch (e) {
             status.innerText = "OFFLINE - RE-RUN GITHUB ACTION";
@@ -115,9 +124,7 @@
         btn.innerText = `LOAD MORE (${allMarkets.length - currentIndex} REMAINING)`;
     }
 
-    // THE AUTO-SCROLL ENGINE
     window.onscroll = function() {
-        // If the bottom of the page is visible, load more
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
             loadNext();
         }

@@ -6,62 +6,90 @@
     <title>Live Odds Feed</title>
     <style>
         body {
-            background-color: #000;
-            color: #fff;
-            font-family: sans-serif;
+            background-color: #0d1117; /* Back to the deep dark blue/black */
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 20px;
         }
 
+        /* The Container: Stops the wide spread */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 1px solid #30363d;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #fff;
+            margin: 0;
+            font-size: 2.2rem;
+            letter-spacing: -1px;
+        }
+
         #status {
+            font-size: 0.9rem;
+            color: #8b949e;
+            margin-top: 10px;
             font-weight: bold;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-            color: #888;
+            text-transform: uppercase;
         }
 
-        .timestamp {
-            color: #444;
-            font-size: 12px;
-            margin-bottom: 20px;
-        }
-
+        /* The Card: Properly separated lines */
         .item {
             display: flex;
             align-items: center;
-            border-bottom: 1px solid #222;
-            padding: 15px 0;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: border-color 0.2s;
+        }
+
+        .item:hover {
+            border-color: #00ff88;
         }
 
         .percentage {
             color: #00ff88;
-            font-size: 32px;
-            font-weight: bold;
-            min-width: 90px;
+            font-size: 2rem;
+            font-weight: 800;
+            min-width: 85px;
+            text-align: center;
         }
 
         .text {
             flex-grow: 1;
-            font-size: 18px;
-            padding-left: 10px;
+            padding: 0 20px;
+            font-size: 1.1rem;
+            color: #f0f6fc;
+            line-height: 1.4;
         }
 
         .choice-label {
             display: block;
-            color: #666;
-            font-size: 14px;
-            margin-top: 4px;
+            color: #8b949e;
+            font-size: 0.9rem;
+            margin-top: 5px;
         }
 
         .volume-badge {
-            color: #444;
-            font-size: 12px;
-            border: 1px solid #222;
-            padding: 4px 8px;
-            border-radius: 4px;
+            background: rgba(48, 54, 61, 0.5);
+            border: 1px solid #484f58;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #8b949e;
+            white-space: nowrap;
         }
 
-        /* Essential for Infinite Scroll */
         #odds-list {
             min-height: 100vh;
         }
@@ -69,8 +97,15 @@
 </head>
 <body>
 
-    <div id="status">SCANNING...</div>
-    <div id="odds-list"></div>
+<div class="container">
+    <header>
+        <h1>TOP LIVE ODDS</h1>
+        <div id="status">INITIALIZING SCAN...</div>
+    </header>
+
+    <div id="odds-list">
+        </div>
+</div>
 
 <script>
     const list = document.getElementById('odds-list');
@@ -78,7 +113,7 @@
     
     let allMarkets = []; 
     let currentIndex = 0; 
-    const itemsPerPage = 15;
+    const itemsPerPage = 10;
 
     async function init() {
         try {
@@ -92,7 +127,6 @@
             // Sort by Volume
             rawData.sort((a, b) => parseFloat(b.volume || 0) - parseFloat(a.volume || 0));
 
-            // Flatten Data
             rawData.forEach(event => {
                 const markets = event.markets || [];
                 markets.forEach(market => {
@@ -116,9 +150,9 @@
             });
 
             status.style.color = "#00ff88";
-            status.innerText = `● SCAN COMPLETE: ${allMarkets.length} MARKETS`;
+            status.innerText = `● SYSTEM LIVE: ${allMarkets.length} MARKETS TRACKED`;
             
-            loadMore(); // Initial load
+            loadMore(); // Load first 10
             
         } catch (e) {
             status.innerText = "OFFLINE";
@@ -146,20 +180,21 @@
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
         
-        // If the 10 items don't fill the screen yet, load more immediately
+        // Fill screen if empty
         if (document.documentElement.scrollHeight <= window.innerHeight && currentIndex < allMarkets.length) {
             loadMore();
         }
     }
 
-    // Scroll Listener
+    // Modern Scroll Listener
     window.addEventListener('scroll', () => {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+        if (scrollTop + clientHeight >= scrollHeight - 300) {
             if (currentIndex < allMarkets.length) {
                 loadMore();
             }
         }
-    });
+    }, { passive: true });
 
     function formatVol(n) {
         let num = parseFloat(n);

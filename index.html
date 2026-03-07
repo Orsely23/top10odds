@@ -115,6 +115,7 @@
     let allMarkets = []; 
     let currentIndex = 0; 
     const itemsPerPage = 10;
+    let isInitialLoad = true; // The "Lock"
 
     async function init() {
         try {
@@ -125,7 +126,6 @@
             currentIndex = 0;
             list.innerHTML = "";
 
-            // Sort by Volume
             rawData.sort((a, b) => parseFloat(b.volume || 0) - parseFloat(a.volume || 0));
 
             rawData.forEach(event => {
@@ -153,15 +153,18 @@
             status.style.color = "#00ff88";
             status.innerText = `● SYSTEM LIVE: ${allMarkets.length} MARKETS`;
             
-            // Load the first 10
+            // LOAD ONLY THE FIRST 10 AND STOP
             loadNext();
-            
-            // SETUP THE SENSOR (Intersection Observer)
+            isInitialLoad = false; // Now we unlock the sensor
+
+            // SETUP THE SENSOR
             const observer = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting) {
-                    loadNext();
+                // If the sensor is seen AND we aren't in the middle of the first setup
+                if (entries[0].isIntersecting && !isInitialLoad) {
+                    // Small delay to make it feel like it's "loading"
+                    setTimeout(loadNext, 100); 
                 }
-            }, { rootMargin: '200px' }); // Trigger 200px before the box is seen
+            }, { rootMargin: '50px' }); 
 
             observer.observe(hint);
 
@@ -193,6 +196,9 @@
 
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
+        
+        // Ensure the hint stays visible
+        hint.innerText = "Scroll down for more results";
     }
 
     function formatVol(n) {
@@ -208,3 +214,4 @@
 
 </body>
 </html>
+

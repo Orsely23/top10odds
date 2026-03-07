@@ -85,60 +85,87 @@
 <script>
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
+    
+    let allMarkets = []; // Stores all 1,699 items
+    let currentIndex = 0; // Tracks how many we've shown
+    const itemsPerPage = 10;
 
     async function init() {
         try {
-            // THE CACHE BUSTER: This forces the browser to see the 500-item file
+            status.innerText = "Syncing 1,000+ Markets...";
             const response = await fetch('./data.json?nocache=' + Date.now());
             const rawData = await response.json();
             
-            // SORT BY VOLUME: High-traffic bets first
-            rawData.sort((a, b) => parseFloat(b.volume || 0) - parseFloat(a.volume || 0));
-            
-            let html = `<div class="timestamp">Last Updated: ${new Date().toLocaleTimeString()}</div>`;
-            let activeCount = 0;
+            // 1. CLEAR & RESET
+            allMarkets = [];
+            currentIndex = 0;
+            list.innerHTML = "";
 
-            // DEEP SCAN: Loop through events, then loop through ALL markets inside them
+            // 2. SORT BY VOLUME (Big money first)
+            rawData.sort((a, b) => parseFloat(b.volume || 0) - parseFloat(a.volume || 0));
+
+            // 3. FLATTEN DATA (Extract every single market into one big list)
             rawData.forEach(event => {
                 const markets = event.markets || [];
-                
                 markets.forEach(market => {
-                    try {
-                        let p = 0;
-                        let rawPrices = market.outcomePrices;
-                        if (typeof rawPrices === 'string') rawPrices = JSON.parse(rawPrices);
-                        p = Array.isArray(rawPrices) ? parseFloat(rawPrices[0]) : parseFloat(market.price || 0);
+                    let p = 0;
+                    let rawPrices = market.outcomePrices;
+                    if (typeof rawPrices === 'string') rawPrices = JSON.parse(rawPrices);
+                    p = Array.isArray(rawPrices) ? parseFloat(rawPrices[0]) : parseFloat(market.price || 0);
+                    const prob = Math.round(p * 100);
 
-                        const prob = Math.round(p * 100);
-                        
-                        // PRODUCTION FILTER: Keep it clean
-                        if (prob >= 99 || prob <= 1 || market.active === false) return;
+                    // Filter out Zombies
+                    if (prob >= 99 || prob <= 1 || market.active === false) return;
 
-                        activeCount++;
-                        const eventTitle = (event.title || "").replace(/by ___ \?/g, "").trim();
-                        const choice = market.groupItemTitle || "Yes";
-
-                        html += `
-                        <div class="item">
-                            <span class="percentage">${prob}%</span>
-                            <div class="text">
-                                ${eventTitle}
-                                <span class="choice-label">Outcome: ${choice}</span>
-                            </div>
-                            <span class="volume-badge">${formatVol(event.volume)}</span>
-                        </div>`;
-                    } catch (err) {}
+                    allMarkets.push({
+                        prob: prob,
+                        title: (event.title || "").replace(/by ___ \?/g, "").trim(),
+                        choice: market.groupItemTitle || "Yes",
+                        volume: event.volume
+                    });
                 });
             });
-            
-            list.innerHTML = html;
+
             status.style.color = "#00ff88";
-            status.innerText = `● SYSTEM LIVE: ${activeCount} MARKETS TRACKED`;
+            status.innerText = `● SYSTEM LIVE: ${allMarkets.length} MARKETS TRACKED`;
+            
+            // 4. LOAD THE FIRST 10
+            loadMore();
             
         } catch (e) {
             status.innerText = "Connection Error";
         }
     }
+
+    function loadMore() {
+        const nextBatch = allMarkets.slice(currentIndex, currentIndex + itemsPerPage);
+        
+        let html = "";
+        nextBatch.forEach(item => {
+            html += `
+            <div class="item">
+                <span class="percentage">${item.prob}%</span>
+                <div class="text">
+                    ${item.title}
+                    <span class="choice-label">Outcome: ${item.choice}</span>
+                </div>
+                <span class="volume-badge">${formatVol(item.volume)}</span>
+            </div>`;
+        });
+
+        list.insertAdjacentHTML('beforeend', html);
+        currentIndex += itemsPerPage;
+    }
+
+    // 5. THE SCROLL DETECTOR
+    window.onscroll = function() {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            // If we are within 500px of the bottom, load 10 more
+            if (currentIndex < allMarkets.length) {
+                loadMore();
+            }
+        }
+    };
 
     function formatVol(n) {
         let num = parseFloat(n);
@@ -149,8 +176,8 @@
     }
 
     init();
-    setInterval(init, 300000); // Auto-refresh every 5 mins
 </script>
 
 </body>
 </html>
+

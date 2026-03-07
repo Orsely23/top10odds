@@ -91,6 +91,7 @@
             border: 1px dashed #30363d;
             border-radius: 8px;
             margin: 20px 0 100px 0;
+            transition: all 0.3s;
         }
     </style>
 </head>
@@ -99,11 +100,10 @@
 <div class="container">
     <header>
         <h1>TOP LIVE ODDS</h1>
-        <div id="status">INITIALIZING...</div>
+        <div id="status">SYNCING MARKETS...</div>
     </header>
 
     <div id="odds-list"></div>
-    
     <div id="scroll-hint">Scroll down for more results</div>
 </div>
 
@@ -115,7 +115,7 @@
     let allMarkets = []; 
     let currentIndex = 0; 
     const itemsPerPage = 10;
-    let isLoading = false; // Prevents double-loading if user scrolls fast
+    let loading = false;
 
     async function init() {
         try {
@@ -126,6 +126,7 @@
             currentIndex = 0;
             list.innerHTML = "";
 
+            // Sort by Volume
             rawData.sort((a, b) => parseFloat(b.volume || 0) - parseFloat(a.volume || 0));
 
             rawData.forEach(event => {
@@ -153,42 +154,38 @@
             status.style.color = "#00ff88";
             status.innerText = `● SYSTEM LIVE: ${allMarkets.length} MARKETS`;
             
-            // Initial load of 10
+            // Load the very first 10
             loadNext();
 
-            // SETUP THE SENSOR
+            // SENSOR: Triggers when the dashed box is visible
             const observer = new IntersectionObserver((entries) => {
-                // If the sensor is seen AND we aren't already busy loading
-                if (entries[0].isIntersecting && !isLoading && currentIndex < allMarkets.length) {
-                    triggerLoad();
+                if (entries[0].isIntersecting && !loading && currentIndex < allMarkets.length) {
+                    showLoadingState();
                 }
-            }, { 
-                rootMargin: '0px', // Only trigger when it actually enters the screen
-                threshold: 0.1     // Must see at least 10% of the box
-            }); 
+            }, { threshold: 0.1 }); 
 
             observer.observe(hint);
 
         } catch (e) {
             status.innerText = "OFFLINE";
+            console.error(e);
         }
     }
 
-    function triggerLoad() {
-        isLoading = true;
+    function showLoadingState() {
+        loading = true;
         hint.innerText = "FETCHING MORE RESULTS...";
-        hint.style.borderColor = "#00ff88";
         hint.style.color = "#00ff88";
+        hint.style.borderColor = "#00ff88";
 
-        // PURPOSEFUL DELAY (750ms)
-        // This stops the "flicker" and lets the user see the message
+        // This 800ms pause lets the user actually see the "Fetching" message
         setTimeout(() => {
             loadNext();
-            isLoading = false;
+            loading = false;
             hint.innerText = "Scroll down for more results";
-            hint.style.borderColor = "#30363d";
             hint.style.color = "#8b949e";
-        }, 750); 
+            hint.style.borderColor = "#30363d";
+        }, 800);
     }
 
     function loadNext() {
@@ -226,7 +223,6 @@
 
     init();
 </script>
+
 </body>
 </html>
-
-

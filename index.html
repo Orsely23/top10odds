@@ -61,20 +61,17 @@
             z-index: 1000;
         }
 
-        /* Adjusted Sentinel for manual click or auto-scroll */
-        #load-sentinel { 
-            height: 80px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            color: var(--accent); 
-            font-size: 0.9rem; 
+        #load-msg { 
+            text-align: center;
+            padding: 30px;
+            color: var(--accent);
             font-weight: bold;
-            margin: 20px 0 40px 0;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
             border: 1px dashed var(--border);
             border-radius: 12px;
-            background: rgba(0, 255, 136, 0.03);
-            cursor: pointer;
+            margin: 20px 0;
+            background: rgba(0, 255, 136, 0.05);
         }
         
         footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; }
@@ -97,7 +94,7 @@
     </div>
 
     <div id="odds-list"></div>
-    <div id="load-sentinel" onclick="loadNext()">● SCROLL FOR MORE</div>
+    <div id="load-msg">● SCROLL TO LOAD MORE</div>
 
     <footer>
         <div class="footer-links">Data powered by <a href="https://polymarket.com" target="_blank">Polymarket</a></div>
@@ -111,7 +108,7 @@
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
     const updateText = document.getElementById('last-update');
-    const sentinel = document.getElementById('load-sentinel');
+    const loadMsg = document.getElementById('load-msg');
     const searchInput = document.getElementById('search-input');
     const backToTopBtn = document.getElementById('back-to-top');
     
@@ -121,20 +118,22 @@
     let isLoading = false; 
     const itemsPerPage = 15;
 
-    // OBSERVER: set to 0px so it only fires when you actually SEE the sentinel
-    const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !isLoading && currentIndex < filteredData.length) {
-            loadNext();
-        }
-    }, { 
-        rootMargin: '0px', 
-        threshold: 0.1 
-    });
-
-    window.addEventListener('scroll', () => {
+    // RAW MATH SCROLL SENSOR
+    window.onscroll = function() {
+        // Back to top button visibility
         if (window.scrollY > 500) { backToTopBtn.style.display = 'flex'; } 
         else { backToTopBtn.style.display = 'none'; }
-    });
+
+        // THE TRIGGER: If we are within 800px of the bottom, load more
+        const scrollPos = window.innerHeight + window.pageYOffset;
+        const pageBottom = document.documentElement.scrollHeight;
+
+        if (scrollPos > pageBottom - 800) {
+            if (!isLoading && currentIndex < filteredData.length) {
+                loadNext();
+            }
+        }
+    };
 
     async function init() {
         try {
@@ -171,7 +170,7 @@
             
             list.innerHTML = "";
             currentIndex = 0;
-            observer.observe(sentinel);
+            loadNext(); // Load first batch immediately
 
         } catch (e) { status.innerText = "OFFLINE"; }
     }
@@ -183,14 +182,14 @@
         currentIndex = 0;
         isLoading = false; 
         status.innerText = `● RESULTS: ${filteredData.length}`;
-        // Sentinel will be visible, triggering first batch of search results
+        loadNext();
     }
 
     function loadNext() {
         if (currentIndex >= filteredData.length || isLoading) return;
         
         isLoading = true; 
-        sentinel.innerText = "● LOADING BATCH...";
+        loadMsg.innerText = "● LOADING BATCH...";
 
         const nextBatch = filteredData.slice(currentIndex, currentIndex + itemsPerPage);
         let html = "";
@@ -227,16 +226,16 @@
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
         
-        // Timeout to allow the browser to push the sentinel back down
+        // Brief timeout to let the page length update
         setTimeout(() => {
             isLoading = false;
             if (currentIndex >= filteredData.length) {
-                sentinel.innerText = "END OF LIST";
-                sentinel.style.display = "none";
+                loadMsg.innerText = "END OF LIST";
+                loadMsg.style.display = "none";
             } else {
-                sentinel.innerText = "● SCROLL FOR MORE";
+                loadMsg.innerText = "● SCROLL FOR MORE";
             }
-        }, 100); 
+        }, 150); 
     }
 
     window.toggleGroup = function(id) {

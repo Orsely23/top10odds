@@ -86,9 +86,9 @@
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
     
-    let allMarkets = []; // Stores all 1,699 items
-    let currentIndex = 0; // Tracks how many we've shown
-    const itemsPerPage = 10;
+    let allMarkets = []; 
+    let currentIndex = 0; 
+    const itemsPerPage = 15; // Increased for better initial "fill"
 
     async function init() {
         try {
@@ -96,25 +96,26 @@
             const response = await fetch('./data.json?nocache=' + Date.now());
             const rawData = await response.json();
             
-            // 1. CLEAR & RESET
+            // RESET
             allMarkets = [];
             currentIndex = 0;
             list.innerHTML = "";
 
-            // 2. SORT BY VOLUME (Big money first)
+            // SORT BY VOLUME
             rawData.sort((a, b) => parseFloat(b.volume || 0) - parseFloat(a.volume || 0));
 
-            // 3. FLATTEN DATA (Extract every single market into one big list)
+            // FLATTEN
             rawData.forEach(event => {
                 const markets = event.markets || [];
                 markets.forEach(market => {
                     let p = 0;
-                    let rawPrices = market.outcomePrices;
-                    if (typeof rawPrices === 'string') rawPrices = JSON.parse(rawPrices);
-                    p = Array.isArray(rawPrices) ? parseFloat(rawPrices[0]) : parseFloat(market.price || 0);
+                    try {
+                        let rawPrices = market.outcomePrices;
+                        if (typeof rawPrices === 'string') rawPrices = JSON.parse(rawPrices);
+                        p = Array.isArray(rawPrices) ? parseFloat(rawPrices[0]) : parseFloat(market.price || 0);
+                    } catch(e) { p = 0; }
+                    
                     const prob = Math.round(p * 100);
-
-                    // Filter out Zombies
                     if (prob >= 99 || prob <= 1 || market.active === false) return;
 
                     allMarkets.push({
@@ -129,18 +130,21 @@
             status.style.color = "#00ff88";
             status.innerText = `● SYSTEM LIVE: ${allMarkets.length} MARKETS TRACKED`;
             
-            // 4. LOAD THE FIRST 10
+            // Load the first batch
             loadMore();
             
         } catch (e) {
+            console.error(e);
             status.innerText = "Connection Error";
         }
     }
 
     function loadMore() {
+        if (currentIndex >= allMarkets.length) return;
+
         const nextBatch = allMarkets.slice(currentIndex, currentIndex + itemsPerPage);
-        
         let html = "";
+        
         nextBatch.forEach(item => {
             html += `
             <div class="item">
@@ -155,17 +159,22 @@
 
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
+        
+        // AUTO-FILL: If the screen is still empty after loading, load more immediately
+        if (document.documentElement.scrollHeight <= window.innerHeight && currentIndex < allMarkets.length) {
+            loadMore();
+        }
     }
 
-    // 5. THE SCROLL DETECTOR
-    window.onscroll = function() {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-            // If we are within 500px of the bottom, load 10 more
-            if (currentIndex < allMarkets.length) {
-                loadMore();
-            }
+    // MODERN SCROLL LISTENER
+    window.addEventListener('scroll', () => {
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+        
+        // If we are 200px from the bottom, load more
+        if (scrollTop + clientHeight >= scrollHeight - 200) {
+            loadMore();
         }
-    };
+    }, { passive: true });
 
     function formatVol(n) {
         let num = parseFloat(n);
@@ -177,7 +186,7 @@
 
     init();
 </script>
-
 </body>
 </html>
+
 

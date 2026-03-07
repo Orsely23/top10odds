@@ -61,17 +61,16 @@
             z-index: 1000;
         }
 
-        #load-msg { 
+        #load-sentinel { 
             text-align: center;
-            padding: 30px;
+            padding: 40px;
             color: var(--accent);
             font-weight: bold;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            border: 1px dashed var(--border);
-            border-radius: 12px;
+            font-size: 1rem;
             margin: 20px 0;
-            background: rgba(0, 255, 136, 0.05);
+            cursor: pointer;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
         }
         
         footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; }
@@ -94,7 +93,7 @@
     </div>
 
     <div id="odds-list"></div>
-    <div id="load-msg">● SCROLL TO LOAD MORE</div>
+    <div id="load-sentinel" onclick="loadNext()">● SCROLL FOR MORE</div>
 
     <footer>
         <div class="footer-links">Data powered by <a href="https://polymarket.com" target="_blank">Polymarket</a></div>
@@ -108,7 +107,7 @@
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
     const updateText = document.getElementById('last-update');
-    const loadMsg = document.getElementById('load-msg');
+    const sentinel = document.getElementById('load-sentinel');
     const searchInput = document.getElementById('search-input');
     const backToTopBtn = document.getElementById('back-to-top');
     
@@ -118,22 +117,22 @@
     let isLoading = false; 
     const itemsPerPage = 15;
 
-    // RAW MATH SCROLL SENSOR
-    window.onscroll = function() {
+    // THE HEARTBEAT SENSOR: Checks every 200ms regardless of "scroll" events
+    setInterval(() => {
         // Back to top button visibility
         if (window.scrollY > 500) { backToTopBtn.style.display = 'flex'; } 
         else { backToTopBtn.style.display = 'none'; }
 
-        // THE TRIGGER: If we are within 800px of the bottom, load more
-        const scrollPos = window.innerHeight + window.pageYOffset;
-        const pageBottom = document.documentElement.scrollHeight;
+        // TRIGGER: If bottom of screen is within 1000px of page end
+        const scrollBottom = window.innerHeight + window.pageYOffset;
+        const pageLimit = document.documentElement.scrollHeight;
 
-        if (scrollPos > pageBottom - 800) {
-            if (!isLoading && currentIndex < filteredData.length) {
+        if (scrollBottom > pageLimit - 1000) {
+            if (!isLoading && currentIndex < filteredData.length && filteredData.length > 0) {
                 loadNext();
             }
         }
-    };
+    }, 200);
 
     async function init() {
         try {
@@ -189,7 +188,7 @@
         if (currentIndex >= filteredData.length || isLoading) return;
         
         isLoading = true; 
-        loadMsg.innerText = "● LOADING BATCH...";
+        sentinel.innerText = "● LOADING BATCH...";
 
         const nextBatch = filteredData.slice(currentIndex, currentIndex + itemsPerPage);
         let html = "";
@@ -226,16 +225,15 @@
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
         
-        // Brief timeout to let the page length update
+        // Brief timeout to let the page settle
         setTimeout(() => {
             isLoading = false;
             if (currentIndex >= filteredData.length) {
-                loadMsg.innerText = "END OF LIST";
-                loadMsg.style.display = "none";
+                sentinel.style.display = "none";
             } else {
-                loadMsg.innerText = "● SCROLL FOR MORE";
+                sentinel.innerText = "● SCROLL FOR MORE";
             }
-        }, 150); 
+        }, 100); 
     }
 
     window.toggleGroup = function(id) {

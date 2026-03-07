@@ -16,14 +16,16 @@
             --text-dim: #8b949e;
             --accent: #00ff88;
         }
-        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; }
+        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; scroll-behavior: smooth; }
         .container { max-width: 800px; margin: 0 auto; }
         header { text-align: center; padding: 40px 0 20px; }
         h1 { margin: 0; font-size: 2.5rem; letter-spacing: -1px; }
         #status { font-size: 0.9rem; color: var(--accent); font-weight: bold; text-transform: uppercase; }
         #last-update { font-size: 0.8rem; color: var(--text-dim); margin-top: 5px; }
+        
         .search-container { position: sticky; top: 10px; z-index: 100; margin-bottom: 30px; }
         #search-input { width: 100%; padding: 15px 20px; background: var(--card); border: 1px solid var(--border); border-radius: 30px; color: #fff; font-size: 1rem; outline: none; box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
+
         .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; overflow: hidden; transition: 0.2s; }
         .event-group:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 136, 0.1); }
         .main-market { display: flex; align-items: center; padding: 20px; cursor: pointer; }
@@ -31,16 +33,48 @@
         .text { flex-grow: 1; padding: 0 20px; font-size: 1.2rem; line-height: 1.3; }
         .choice-label { display: block; color: var(--text-dim); font-size: 1.05rem; margin-top: 6px; }
         .volume-badge { background: rgba(48,54,61,0.5); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; color: var(--text-dim); }
+
         .bet-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; text-decoration: none; margin-left: 15px; transition: 0.2s; }
         .bet-btn:hover { background: var(--accent); color: #000; }
         .expand-btn { color: var(--accent); font-size: 1.6rem; font-weight: bold; margin-left: 15px; width: 20px; text-align: center; }
+
         .sub-markets { display: none; background: rgba(0,0,0,0.25); border-top: 1px solid var(--border); padding: 15px 25px 25px 110px; }
         .sub-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #222; }
         .sub-prob { color: var(--accent); font-weight: bold; width: 50px; }
         .sub-choice { flex-grow: 1; color: var(--text-dim); }
         
-        /* Loading Sentinel - Height is key to catching the scroll */
-        #load-sentinel { height: 100px; display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 0.9rem; margin-top: 20px; }
+        /* Floating Back to Top Button */
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            color: #000;
+            border-radius: 50%;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,255,136,0.3);
+            z-index: 1000;
+            font-weight: bold;
+        }
+
+        #load-sentinel { 
+            height: 120px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: var(--text-dim); 
+            font-size: 0.9rem; 
+            margin-top: 20px;
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+        }
         
         footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; }
         .footer-links a { color: var(--accent); text-decoration: none; font-weight: bold; }
@@ -49,7 +83,7 @@
 <body>
 
 <div class="container">
-    <header>
+    <header id="top">
         <h1>TOP 10 LIVE ODDS</h1>
         <div class="status-area">
             <div id="status">CONNECTING...</div>
@@ -62,7 +96,7 @@
     </div>
 
     <div id="odds-list"></div>
-    <div id="load-sentinel">● LOADING DATA...</div>
+    <div id="load-sentinel">● SCROLL FOR MORE</div>
 
     <footer>
         <div class="footer-links">Data powered by <a href="https://polymarket.com" target="_blank">Polymarket</a></div>
@@ -70,12 +104,15 @@
     </footer>
 </div>
 
+<div id="back-to-top" onclick="window.scrollTo(0,0)">↑</div>
+
 <script>
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
     const updateText = document.getElementById('last-update');
     const sentinel = document.getElementById('load-sentinel');
     const searchInput = document.getElementById('search-input');
+    const backToTopBtn = document.getElementById('back-to-top');
     
     let allGroupedData = []; 
     let filteredData = [];   
@@ -83,14 +120,23 @@
     let isLoading = false; 
     const itemsPerPage = 15;
 
-    // THE IMPROVED OBSERVER
+    // THE OBSERVER
     const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && !isLoading && currentIndex < filteredData.length) {
             loadNext();
         }
     }, { 
-        rootMargin: '400px', // Trigger 400px BEFORE the element hits the screen
+        rootMargin: '250px', // Balanced: loads ahead but lets you see the transition
         threshold: 0.01 
+    });
+
+    // BACK TO TOP VISIBILITY
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 500) {
+            backToTopBtn.style.display = 'flex';
+        } else {
+            backToTopBtn.style.display = 'none';
+        }
     });
 
     async function init() {
@@ -141,7 +187,6 @@
         currentIndex = 0;
         isLoading = false; 
         status.innerText = `● RESULTS: ${filteredData.length}`;
-        // Observer handles the rest
     }
 
     function loadNext() {
@@ -183,11 +228,10 @@
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
         
-        // Immediate reset of isLoading unless we reached the end
         if (currentIndex >= filteredData.length) {
             sentinel.innerText = "END OF LIST";
         } else {
-            sentinel.innerText = "● SCROLL FOR MORE";
+            sentinel.innerText = `SHOWING ${currentIndex} OF ${filteredData.length} - SCROLL FOR MORE`;
             isLoading = false; 
         }
     }

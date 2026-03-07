@@ -7,10 +7,6 @@
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d1117'/><path d='M20 70 l20-20 l15 15 l30-35 M85 30 l0 15 M85 30 l-15 0' stroke='%2300ff88' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
     
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0d1117">
-
     <style>
         :root {
             --bg: #0d1117;
@@ -21,90 +17,46 @@
             --accent: #00ff88;
         }
 
-        body { 
-            background-color: var(--bg); 
-            color: var(--text-main); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 
-            margin: 0; 
-            padding: 20px; 
-            scroll-behavior: smooth;
-        }
-
+        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; scroll-behavior: smooth; }
         .container { max-width: 800px; margin: 0 auto; }
-
         header { text-align: center; padding: 40px 0 20px; }
-        h1 { margin: 0; font-size: 2.5rem; letter-spacing: -1px; color: #fff; }
+        h1 { margin: 0; font-size: 2.5rem; letter-spacing: -1px; }
 
-        .status-area { margin: 10px 0 20px; }
         #status { font-size: 0.9rem; color: var(--accent); font-weight: bold; text-transform: uppercase; display: flex; align-items: center; justify-content: center; }
-        #last-update { font-size: 0.8rem; color: var(--text-dim); margin-top: 5px; }
-
-        /* Pulsing Dot Animation */
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent);
-            border-radius: 50%;
-            margin-right: 10px;
-            box-shadow: 0 0 0 rgba(0, 255, 136, 0.4);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
-        }
+        .pulse-dot { width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%; margin-right: 10px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } }
 
         .search-container { position: sticky; top: 10px; z-index: 100; margin-bottom: 30px; }
-        #search-input { 
-            width: 100%; padding: 15px 20px; background: var(--card); 
-            border: 1px solid var(--border); border-radius: 30px; 
-            color: #fff; font-size: 1rem; outline: none; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6); 
-        }
+        #search-input { width: 100%; padding: 15px 20px; background: var(--card); border: 1px solid var(--border); border-radius: 30px; color: #fff; font-size: 1rem; outline: none; box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
 
-        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; overflow: hidden; transition: 0.2s; }
-        .event-group:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 136, 0.1); }
-        
+        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; overflow: hidden; }
         .main-market { display: flex; align-items: center; padding: 20px; cursor: pointer; }
         .percentage { color: var(--accent); font-size: 2.2rem; font-weight: 800; min-width: 90px; text-align: center; }
         .text { flex-grow: 1; padding: 0 20px; font-size: 1.2rem; line-height: 1.3; }
         .choice-label { display: block; color: var(--text-dim); font-size: 1.05rem; margin-top: 6px; }
-        
         .volume-badge { background: rgba(48,54,61,0.5); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; color: var(--text-dim); }
 
-        .bet-btn { 
-            background: transparent; border: 1px solid var(--accent); 
-            color: var(--accent); padding: 8px 16px; border-radius: 6px; 
-            font-size: 0.85rem; font-weight: bold; text-decoration: none; 
-            margin-left: 15px; transition: 0.2s; white-space: nowrap;
-        }
+        .bet-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; text-decoration: none; margin-left: 15px; }
         .bet-btn:hover { background: var(--accent); color: #000; }
-        
-        .expand-btn { color: var(--accent); font-size: 1.6rem; font-weight: bold; margin-left: 15px; width: 20px; text-align: center; }
 
         .sub-markets { display: none; background: rgba(0,0,0,0.25); border-top: 1px solid var(--border); padding: 15px 25px 25px 110px; }
         .sub-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #222; }
-        .sub-prob { color: var(--accent); font-weight: bold; width: 50px; }
-        .sub-choice { flex-grow: 1; color: var(--text-dim); }
 
-        #load-sentinel { 
-            text-align: center; padding: 40px; color: var(--accent); 
-            font-weight: bold; font-size: 1rem; margin: 20px 0; 
-            cursor: pointer; border: 2px dashed var(--border); border-radius: 12px; 
+        /* THE VISIBLE LINE */
+        #load-trigger-line {
+            text-align: center;
+            padding: 40px;
+            color: var(--accent);
+            font-weight: bold;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            margin: 20px 0;
+            cursor: pointer;
         }
 
-        #back-to-top {
-            position: fixed; bottom: 30px; right: 30px; 
-            width: 50px; height: 50px; background: var(--accent); 
-            color: #000; border-radius: 50%; display: none; 
-            align-items: center; justify-content: center; 
-            font-size: 1.5rem; cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(0,255,136,0.3); z-index: 1000;
-        }
+        #back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background: var(--accent); color: #000; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; z-index: 1000; font-weight: bold; }
 
-        footer { text-align: center; padding: 60px 20px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; line-height: 1.6; }
+        footer { text-align: center; padding: 60px 20px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; }
         .footer-links a { color: var(--accent); text-decoration: none; font-weight: bold; }
     </style>
 </head>
@@ -113,26 +65,20 @@
 <div class="container">
     <header id="top">
         <h1>TOP 10 LIVE ODDS</h1>
-        <div class="status-area">
-            <div id="status">CONNECTING...</div>
-            <div id="last-update">Syncing time...</div>
-        </div>
+        <div id="status"><span class="pulse-dot"></span> CONNECTING...</div>
+        <div id="last-update" style="text-align:center; font-size:0.8rem; color:var(--text-dim);">Syncing...</div>
     </header>
 
     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search 1,600+ live markets..." onkeyup="handleSearch()">
+        <input type="text" id="search-input" placeholder="Search live markets..." onkeyup="handleSearch()">
     </div>
 
     <div id="odds-list"></div>
-    <div id="load-sentinel" onclick="loadNext()">● SCROLL FOR MORE</div>
+    
+    <div id="load-trigger-line" onclick="loadNext()">● SCROLL FOR MORE</div>
 
     <footer>
         <div class="footer-links">Data powered by <a href="https://polymarket.com" target="_blank">Polymarket</a></div>
-        <p style="margin-top: 15px; max-width: 600px; margin-left: auto; margin-right: auto;">
-            This site is an independent aggregator and is not affiliated with, endorsed by, or 
-            officially connected to Polymarket. Odds are provided for informational purposes only. 
-            Always verify data on the source platform before making financial decisions.
-        </p>
         <p>&copy; 2026 Top 10 Live Odds</p>
     </footer>
 </div>
@@ -143,8 +89,7 @@
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
     const updateText = document.getElementById('last-update');
-    const sentinel = document.getElementById('load-sentinel');
-    const searchInput = document.getElementById('search-input');
+    const triggerLine = document.getElementById('load-trigger-line');
     const backToTopBtn = document.getElementById('back-to-top');
     
     let allGroupedData = []; 
@@ -153,36 +98,30 @@
     let isLoading = false; 
     const itemsPerPage = 15;
 
-    // THE HEARTBEAT SENSOR: High-frequency scroll check
-    setInterval(() => {
+    // FORCE VISIBILITY: Use a simple scroll listener that checks the trigger line's position
+    window.onscroll = () => {
         if (window.scrollY > 500) { backToTopBtn.style.display = 'flex'; } 
         else { backToTopBtn.style.display = 'none'; }
 
-        const scrollBottom = window.innerHeight + window.pageYOffset;
-        const pageLimit = document.documentElement.scrollHeight;
-
-        // Auto-trigger load when within 1000px of bottom
-        if (scrollBottom > pageLimit - 1000) {
-            if (!isLoading && currentIndex < filteredData.length && filteredData.length > 0) {
-                loadNext();
-            }
+        // Logic: If the trigger line is within the viewport, load more.
+        const rect = triggerLine.getBoundingClientRect();
+        if (rect.top < window.innerHeight && !isLoading && currentIndex < filteredData.length) {
+            loadNext();
         }
-    }, 200);
+    };
 
     async function init() {
         try {
             const response = await fetch('./data.json?v=' + Date.now());
             const rawData = await response.json();
-            
             const now = new Date();
-            updateText.innerText = `LAST UPDATE: ${now.toLocaleDateString()} AT ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            updateText.innerText = `LAST UPDATE: ${now.toLocaleTimeString()}`;
 
             const groups = {};
             rawData.forEach(event => {
                 if (!event || !event.markets) return;
                 const title = (event.title || "").replace(/by ___ \?/g, "").trim();
                 const slug = event.slug || "";
-                
                 event.markets.forEach(market => {
                     let p = 0;
                     try {
@@ -190,21 +129,14 @@
                         if (typeof pr === 'string') pr = JSON.parse(pr);
                         p = Array.isArray(pr) ? parseFloat(pr[0]) : parseFloat(market.price || 0);
                     } catch(e){}
-
                     const prob = Math.round(p * 100);
                     if (prob < 5 || prob > 95 || market.active === false) return;
-
-                    if (!groups[title]) {
-                        groups[title] = { title, slug, volume: parseFloat(event.volume || 0), markets: [] };
-                    }
+                    if (!groups[title]) groups[title] = { title, slug, volume: parseFloat(event.volume || 0), markets: [] };
                     groups[title].markets.push({ prob, choice: market.groupItemTitle || "Yes" });
                 });
             });
 
-            allGroupedData = Object.values(groups)
-                .filter(g => g.markets.length > 0)
-                .sort((a,b) => b.volume - a.volume);
-            
+            allGroupedData = Object.values(groups).filter(g => g.markets.length > 0).sort((a,b) => b.volume - a.volume);
             allGroupedData.forEach(g => g.markets.sort((a,b) => b.prob - a.prob));
             
             filteredData = [...allGroupedData];
@@ -213,19 +145,12 @@
             list.innerHTML = "";
             currentIndex = 0;
             loadNext(); 
-
-        } catch (e) { 
-            status.style.color = "#ff4444";
-            status.innerText = "OFFLINE - CHECK DATA SOURCE"; 
-        }
+        } catch (e) { status.innerText = "OFFLINE"; }
     }
 
     function handleSearch() {
-        const query = searchInput.value.toLowerCase();
-        filteredData = allGroupedData.filter(g => 
-            g.title.toLowerCase().includes(query) || 
-            g.markets.some(m => m.choice.toLowerCase().includes(query))
-        );
+        const query = document.getElementById('search-input').value.toLowerCase();
+        filteredData = allGroupedData.filter(g => g.title.toLowerCase().includes(query) || g.markets.some(m => m.choice.toLowerCase().includes(query)));
         list.innerHTML = "";
         currentIndex = 0;
         isLoading = false; 
@@ -237,7 +162,7 @@
         if (currentIndex >= filteredData.length || isLoading) return;
         
         isLoading = true; 
-        sentinel.innerText = "● LOADING BATCH...";
+        triggerLine.innerText = "● LOADING BATCH...";
 
         const nextBatch = filteredData.slice(currentIndex, currentIndex + itemsPerPage);
         let html = "";
@@ -253,12 +178,9 @@
                 <div class="main-market">
                     <div style="display:flex;align-items:center;flex-grow:1;" onclick="toggleGroup('${groupId}')">
                         <span class="percentage">${main.prob}%</span>
-                        <div class="text">
-                            ${group.title}
-                            <span class="choice-label">Front-runner: ${main.choice}</span>
-                        </div>
+                        <div class="text">${group.title}<span class="choice-label">Front-runner: ${main.choice}</span></div>
                         <span class="volume-badge">${formatVol(group.volume)}</span>
-                        ${hasMore ? `<span class="expand-btn" id="btn-${groupId}">+</span>` : ''}
+                        ${hasMore ? `<span style="color:var(--accent); font-weight:bold; margin-left:15px;">+</span>` : ''}
                     </div>
                     <a href="${betUrl}" target="_blank" class="bet-btn">Wanna bet?</a>
                 </div>
@@ -277,22 +199,21 @@
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
         
+        // Final sanity check: If we've filled the page, reset the trigger
         setTimeout(() => {
             isLoading = false;
             if (currentIndex >= filteredData.length) {
-                sentinel.style.display = "none";
+                triggerLine.style.display = "none";
             } else {
-                sentinel.innerText = "● SCROLL FOR MORE";
+                triggerLine.innerText = "● SCROLL FOR MORE";
             }
-        }, 100); 
+        }, 200); 
     }
 
     window.toggleGroup = function(id) {
         const el = document.getElementById(id);
-        const btnText = document.getElementById(`btn-${id}`);
         const isVisible = (el.style.display === "block");
         el.style.display = isVisible ? "none" : "block";
-        if (btnText) btnText.innerText = isVisible ? "+" : "-";
     };
 
     function formatVol(n) {

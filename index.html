@@ -3,81 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top 100 Odds | Live Polymarket Feed</title>
+    <title>Live Odds Feed</title>
     <style>
-        :root {
-            --bg: #0d1117;
-            --card: #161b22;
-            --text: #c9d1d9;
-            --accent: #00ff88;
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
         }
-
-       body {
-    height: auto;
-    overflow-y: auto;
-}
-
-        .container { max-width: 900px; margin: 0 auto; }
-
-        header {
-            text-align: center;
-            padding: 40px 0;
-            border-bottom: 1px solid #30363d;
-            margin-bottom: 20px;
-        }
-
-        h1 { color: #fff; margin: 0; font-size: 2rem; }
 
         #status {
-            font-size: 0.9rem;
-            color: #8b949e;
-            margin-top: 10px;
             font-weight: bold;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            color: #888;
         }
 
-        .timestamp { text-align: center; font-size: 0.8rem; color: #484f58; margin-bottom: 20px; }
+        .timestamp {
+            color: #444;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
 
         .item {
             display: flex;
             align-items: center;
-            background: var(--card);
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 12px;
+            border-bottom: 1px solid #222;
+            padding: 15px 0;
         }
 
         .percentage {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--accent);
-            min-width: 80px;
-            text-align: center;
+            color: #00ff88;
+            font-size: 32px;
+            font-weight: bold;
+            min-width: 90px;
         }
 
-        .text { flex-grow: 1; padding: 0 20px; font-size: 1.05rem; color: #f0f6fc; }
+        .text {
+            flex-grow: 1;
+            font-size: 18px;
+            padding-left: 10px;
+        }
 
-        .choice-label { color: #8b949e; font-size: 0.85rem; display: block; margin-top: 4px; }
+        .choice-label {
+            display: block;
+            color: #666;
+            font-size: 14px;
+            margin-top: 4px;
+        }
 
         .volume-badge {
-            background: rgba(48, 54, 61, 0.5);
-            border: 1px solid #484f58;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: #8b949e;
+            color: #444;
+            font-size: 12px;
+            border: 1px solid #222;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* Essential for Infinite Scroll */
+        #odds-list {
+            min-height: 100vh;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>TOP 100 LIVE ODDS</h1>
-        <div id="status">Syncing Feed...</div>
-    </header>
+    <div id="status">SCANNING...</div>
     <div id="odds-list"></div>
-</div>
 
 <script>
     const list = document.getElementById('odds-list');
@@ -85,23 +78,21 @@
     
     let allMarkets = []; 
     let currentIndex = 0; 
-    const itemsPerPage = 15; // Increased for better initial "fill"
+    const itemsPerPage = 15;
 
     async function init() {
         try {
-            status.innerText = "Syncing 1,000+ Markets...";
-            const response = await fetch('./data.json?nocache=' + Date.now());
+            const response = await fetch('./data.json?v=' + Date.now());
             const rawData = await response.json();
             
-            // RESET
             allMarkets = [];
             currentIndex = 0;
             list.innerHTML = "";
 
-            // SORT BY VOLUME
+            // Sort by Volume
             rawData.sort((a, b) => parseFloat(b.volume || 0) - parseFloat(a.volume || 0));
 
-            // FLATTEN
+            // Flatten Data
             rawData.forEach(event => {
                 const markets = event.markets || [];
                 markets.forEach(market => {
@@ -125,14 +116,12 @@
             });
 
             status.style.color = "#00ff88";
-            status.innerText = `● SYSTEM LIVE: ${allMarkets.length} MARKETS TRACKED`;
+            status.innerText = `● SCAN COMPLETE: ${allMarkets.length} MARKETS`;
             
-            // Load the first batch
-            loadMore();
+            loadMore(); // Initial load
             
         } catch (e) {
-            console.error(e);
-            status.innerText = "Connection Error";
+            status.innerText = "OFFLINE";
         }
     }
 
@@ -157,21 +146,20 @@
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
         
-        // AUTO-FILL: If the screen is still empty after loading, load more immediately
+        // If the 10 items don't fill the screen yet, load more immediately
         if (document.documentElement.scrollHeight <= window.innerHeight && currentIndex < allMarkets.length) {
             loadMore();
         }
     }
 
-    // MODERN SCROLL LISTENER
+    // Scroll Listener
     window.addEventListener('scroll', () => {
-        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-        
-        // If we are 200px from the bottom, load more
-        if (scrollTop + clientHeight >= scrollHeight - 200) {
-            loadMore();
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            if (currentIndex < allMarkets.length) {
+                loadMore();
+            }
         }
-    }, { passive: true });
+    });
 
     function formatVol(n) {
         let num = parseFloat(n);
@@ -183,8 +171,6 @@
 
     init();
 </script>
+
 </body>
 </html>
-
-
-

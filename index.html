@@ -3,52 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top 50 Odds Live</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
-   <style>
-    /* Add this to keep the list from feeling cluttered */
-    #odds-list {
-        max-width: 800px;
-        margin: 0 auto;
-        padding-bottom: 50px;
-    }
-    .item {
-        display: flex;
-        align-items: center;
-        padding: 12px; /* Slightly tighter padding */
-        border-bottom: 1px solid #333;
-        transition: background 0.2s;
-    }
-    .item:hover {
-        background: rgba(255, 255, 255, 0.05);
-    }
-</style>
+    <title>Top 100 Odds | Live Polymarket Feed</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: #161b22;
+            --text: #c9d1d9;
+            --accent: #00ff88;
+            --zombie: #ff4d4d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 1px solid #30363d;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #fff;
+            margin: 0;
+            font-size: 2rem;
+            letter-spacing: -1px;
+        }
+
+        #status {
+            font-size: 0.9rem;
+            color: #8b949e;
+            margin-top: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timestamp {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #484f58;
+            margin-bottom: 20px;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            background: var(--card);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: transform 0.1s;
+        }
+
+        .item:hover {
+            border-color: var(--accent);
+            transform: scale(1.01);
+        }
+
+        .percentage {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent);
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .text {
+            flex-grow: 1;
+            padding: 0 20px;
+            font-size: 1.05rem;
+            color: #f0f6fc;
+        }
+
+        .choice-label {
+            color: #8b949e;
+            font-size: 0.85rem;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .volume-badge {
+            background: rgba(48, 54, 61, 0.5);
+            border: 1px solid #484f58;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #8b949e;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 600px) {
+            .percentage { font-size: 1.4rem; min-width: 60px; }
+            .text { font-size: 0.95rem; padding: 0 10px; }
+            .volume-badge { display: none; }
+        }
+    </style>
 </head>
 <body>
-    <div class="logo">Top 50 Odds Live</div>
-    <div class="tagline">Real-time prediction market data</div>
-    <div class="search-wrapper"><input type="text" id="search-bar" placeholder="Search markets..." onkeyup="filterMarkets()"></div>
-    <div class="container"><div id="odds-list"><div style="padding:40px; text-align:center;">Connecting to global feed...</div></div></div>
-    <div id="status" class="status">Initializing...</div>
+
+<div class="container">
+    <header>
+        <h1>TOP 100 LIVE ODDS</h1>
+        <div id="status">Syncing Feed...</div>
+    </header>
+
+    <div id="odds-list">
+        </div>
+</div>
 
 <script>
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
 
     async function init() {
-        status.innerText = "Syncing Live Odds...";
         try {
+            // Added cache-buster to ensure we get the newest data.json
             const response = await fetch('./data.json?v=' + Date.now());
             const rawData = await response.json();
             
             let html = `<div class="timestamp">Last Updated: ${new Date().toLocaleTimeString()}</div>`;
             let activeCount = 0;
 
+            // Sort by volume or probability if you prefer, 
+            // but for now we follow the API order.
             rawData.forEach(event => {
                 try {
                     const mainMarket = event.markets ? event.markets[0] : null;
                     if (!mainMarket) return;
 
+                    // Extracting price safely
                     let p = 0;
                     let rawPrices = mainMarket.outcomePrices;
                     if (typeof rawPrices === 'string') rawPrices = JSON.parse(rawPrices);
@@ -56,10 +152,11 @@
 
                     const prob = Math.round(p * 100);
                     
-                    // The "Clean" Filter: Hide the junk
+                    // Production Filter: Hide expired or deadlocked bets
                     if (prob >= 99 || prob <= 1 || mainMarket.active === false) return;
 
                     activeCount++;
+                    
                     const eventTitle = (event.title || "").replace(/by ___ \?/g, "").trim();
                     const choice = mainMarket.groupItemTitle || "";
 
@@ -67,82 +164,39 @@
                     <div class="item">
                         <span class="percentage">${prob}%</span>
                         <div class="text">
-                            odds for ${eventTitle} ${choice ? `(${choice})` : ''}
+                            ${eventTitle}
+                            ${choice ? `<span class="choice-label">Outcome: ${choice}</span>` : ''}
                         </div>
                         <span class="volume-badge">${formatVol(event.volume)}</span>
                     </div>`;
-                } catch (err) { /* Skip messy items */ }
+                } catch (err) {
+                    console.error("Skipped an item due to error");
+                }
             });
             
             list.innerHTML = html;
             status.style.color = "#00ff88";
             status.innerText = `● SYSTEM LIVE: ${activeCount} MARKETS TRACKED`;
+            
         } catch (e) {
-            status.innerText = "Connection Error";
+            console.error(e);
+            status.innerText = "Connection Error: Check GitHub Actions";
+            status.style.color = "#ff4d4d";
         }
     }
 
     function formatVol(n) {
         let num = parseFloat(n);
-        if (isNaN(num) || num === 0) return '$--';
+        if (isNaN(num) || num === 0) return '$0';
         if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
         if (num >= 1000) return '$' + (num / 1000).toFixed(1) + 'K';
         return '$' + Math.round(num);
     }
 
- rawData.forEach(event => {
-                try {
-                    const mainMarket = event.markets ? event.markets[0] : null;
-                    if (!mainMarket) return;
-
-                    let p = 0;
-                    let rawPrices = mainMarket.outcomePrices;
-                    if (typeof rawPrices === 'string') rawPrices = JSON.parse(rawPrices);
-                    p = Array.isArray(rawPrices) ? parseFloat(rawPrices[0]) : parseFloat(mainMarket.price || 0);
-
-                    const prob = Math.round(p * 100);
-                    
-                    // Filter: Only show high-quality active bets
-                    if (prob >= 99 || prob <= 1 || mainMarket.active === false) return;
-
-                    activeCount++;
-                    
-                    let eventTitle = (event.title || "").replace(/by ___ \?/g, "").trim();
-                    const choice = mainMarket.groupItemTitle || "";
-                    
-                    // Limit title length for better UI on mobile
-                    if (eventTitle.length > 85) eventTitle = eventTitle.substring(0, 82) + "...";
-
-                    html += `
-                    <div class="item">
-                        <span class="percentage">${prob}%</span>
-                        <div class="text">
-                            ${eventTitle} <span style="color: #888; font-size: 0.85em;">${choice ? `[${choice}]` : ''}</span>
-                        </div>
-                        <span class="volume-badge">${formatVol(event.volume)}</span>
-                    </div>`;
-                } catch (err) { }
-            });
+    init();
+    // Refresh every 5 minutes without reloading page
+    setInterval(init, 300000);
 </script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

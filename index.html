@@ -39,12 +39,22 @@
             color: #fff;
         }
 
+        .status-area {
+            margin: 10px 0 20px 0;
+        }
+
         #status {
             font-size: 0.9rem;
-            color: var(--text-dim);
-            margin: 10px 0 20px 0;
+            color: var(--accent);
             font-weight: bold;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #last-update {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 5px;
         }
 
         .search-container {
@@ -64,7 +74,7 @@
             font-size: 1rem;
             outline: none;
             box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
 
         #search-input:focus {
@@ -123,7 +133,6 @@
             color: var(--text-dim);
         }
 
-        /* The "Wanna Bet?" Button */
         .bet-btn {
             background: transparent;
             border: 1px solid var(--accent);
@@ -192,11 +201,14 @@
 <div class="container">
     <header>
         <h1>TOP 10 LIVE ODDS</h1>
-        <div id="status">CONNECTING...</div>
+        <div class="status-area">
+            <div id="status">CONNECTING...</div>
+            <div id="last-update">Syncing time...</div>
+        </div>
     </header>
 
     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search markets (e.g. 'Bitcoin', 'NBA', 'Election')..." onkeyup="handleSearch()">
+        <input type="text" id="search-input" placeholder="Search 1,600+ markets..." onkeyup="handleSearch()">
     </div>
 
     <div id="odds-list"></div>
@@ -206,6 +218,7 @@
 <script>
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
+    const updateText = document.getElementById('last-update');
     const btn = document.getElementById('load-btn');
     const searchInput = document.getElementById('search-input');
     
@@ -219,11 +232,15 @@
             const response = await fetch('./data.json?v=' + Date.now());
             const rawData = await response.json();
             
+            // Set the update time based on the response headers or current time
+            const now = new Date();
+            updateText.innerText = `LAST UPDATE: ${now.toLocaleDateString()} AT ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
             const groups = {};
 
             rawData.forEach(event => {
                 const title = (event.title || "").replace(/by ___ \?/g, "").trim();
-                const slug = event.slug || ""; // Polymarket slug for the link
+                const slug = event.slug || "";
                 if (!event.markets) return;
 
                 event.markets.forEach(market => {
@@ -260,13 +277,13 @@
 
         } catch (e) {
             status.innerText = "OFFLINE";
+            updateText.innerText = "ERROR FETCHING DATA";
         }
     }
 
     function renderInitial() {
         list.innerHTML = "";
         currentIndex = 0;
-        status.style.color = "#00ff88";
         status.innerText = `● SYSTEM LIVE: ${filteredData.length} TOPICS`;
         btn.style.display = filteredData.length > 0 ? 'block' : 'none';
         loadNext();

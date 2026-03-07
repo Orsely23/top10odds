@@ -33,27 +33,19 @@
     const status = document.getElementById('status');
 
     async function init() {
-        status.innerText = "🔍 Diagnostic: Searching Feed...";
+        status.innerText = "Syncing Live Odds...";
         try {
             const response = await fetch('./data.json?v=' + Date.now());
-            if (!response.ok) throw new Error("File not found");
             const rawData = await response.json();
             
-            if (!rawData || !Array.isArray(rawData)) {
-                status.innerText = "⚠️ Error: Data is not a list.";
-                return;
-            }
-
-            let html = `<div class="timestamp">Diagnostic Mode: Full Data Scan</div>`;
+            let html = `<div class="timestamp">Last Updated: ${new Date().toLocaleTimeString()}</div>`;
             let activeCount = 0;
-            let zombieCount = 0;
 
             rawData.forEach(event => {
                 try {
                     const mainMarket = event.markets ? event.markets[0] : null;
                     if (!mainMarket) return;
 
-                    // PRICE EXTRACTION (Handles both Strings and Numbers)
                     let p = 0;
                     let rawPrices = mainMarket.outcomePrices;
                     if (typeof rawPrices === 'string') rawPrices = JSON.parse(rawPrices);
@@ -61,34 +53,29 @@
 
                     const prob = Math.round(p * 100);
                     
-                    // ZOMBIE LOGIC: Filter out dead or 99% glitch markets
-                    const isZombie = (prob >= 99 || prob <= 1 || mainMarket.active === false);
-                    const color = isZombie ? "#ff4d4d" : "#00ff88"; 
-                    const label = isZombie ? "ZOMBIE" : "ACTIVE";
+                    // The "Clean" Filter: Hide the junk
+                    if (prob >= 99 || prob <= 1 || mainMarket.active === false) return;
 
-                    if (isZombie) zombieCount++; else activeCount++;
-
-                    const eventTitle = (event.title || "Unknown Event").replace(/by ___ \?/g, "").trim();
+                    activeCount++;
+                    const eventTitle = (event.title || "").replace(/by ___ \?/g, "").trim();
                     const choice = mainMarket.groupItemTitle || "";
 
                     html += `
-                    <div class="item" style="border-left: 5px solid ${color}; background: rgba(0,0,0,0.3); margin-bottom: 10px;">
-                        <span class="percentage" style="color: ${color}">${prob}%</span>
+                    <div class="item">
+                        <span class="percentage">${prob}%</span>
                         <div class="text">
-                            <strong style="color: ${color}">${label}</strong><br>
                             odds for ${eventTitle} ${choice ? `(${choice})` : ''}
                         </div>
-                        <span class="volume-badge" style="border-color: ${color}">${formatVol(event.volume)}</span>
+                        <span class="volume-badge">${formatVol(event.volume)}</span>
                     </div>`;
-                } catch (err) { console.log("Skipping messy item"); }
+                } catch (err) { /* Skip messy items */ }
             });
             
             list.innerHTML = html;
-            status.style.color = "#ffcc00";
-            status.innerText = `● SCAN COMPLETE: ${activeCount} ACTIVE, ${zombieCount} ZOMBIES`;
+            status.style.color = "#00ff88";
+            status.innerText = `● SYSTEM LIVE: ${activeCount} MARKETS TRACKED`;
         } catch (e) {
-            console.error(e);
-            status.innerText = "❌ Sync Failed: Run GitHub Action again.";
+            status.innerText = "Connection Error";
         }
     }
 
@@ -104,6 +91,7 @@
 </script>
 </body>
 </html>
+
 
 
 

@@ -115,7 +115,7 @@
     let allMarkets = []; 
     let currentIndex = 0; 
     const itemsPerPage = 10;
-    let isInitialLoad = true; // The "Lock"
+    let isLoading = false; // Prevents double-loading if user scrolls fast
 
     async function init() {
         try {
@@ -153,24 +153,42 @@
             status.style.color = "#00ff88";
             status.innerText = `● SYSTEM LIVE: ${allMarkets.length} MARKETS`;
             
-            // LOAD ONLY THE FIRST 10 AND STOP
+            // Initial load of 10
             loadNext();
-            isInitialLoad = false; // Now we unlock the sensor
 
             // SETUP THE SENSOR
             const observer = new IntersectionObserver((entries) => {
-                // If the sensor is seen AND we aren't in the middle of the first setup
-                if (entries[0].isIntersecting && !isInitialLoad) {
-                    // Small delay to make it feel like it's "loading"
-                    setTimeout(loadNext, 100); 
+                // If the sensor is seen AND we aren't already busy loading
+                if (entries[0].isIntersecting && !isLoading && currentIndex < allMarkets.length) {
+                    triggerLoad();
                 }
-            }, { rootMargin: '50px' }); 
+            }, { 
+                rootMargin: '0px', // Only trigger when it actually enters the screen
+                threshold: 0.1     // Must see at least 10% of the box
+            }); 
 
             observer.observe(hint);
 
         } catch (e) {
             status.innerText = "OFFLINE";
         }
+    }
+
+    function triggerLoad() {
+        isLoading = true;
+        hint.innerText = "FETCHING MORE RESULTS...";
+        hint.style.borderColor = "#00ff88";
+        hint.style.color = "#00ff88";
+
+        // PURPOSEFUL DELAY (750ms)
+        // This stops the "flicker" and lets the user see the message
+        setTimeout(() => {
+            loadNext();
+            isLoading = false;
+            hint.innerText = "Scroll down for more results";
+            hint.style.borderColor = "#30363d";
+            hint.style.color = "#8b949e";
+        }, 750); 
     }
 
     function loadNext() {
@@ -196,9 +214,6 @@
 
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
-        
-        // Ensure the hint stays visible
-        hint.innerText = "Scroll down for more results";
     }
 
     function formatVol(n) {
@@ -211,7 +226,7 @@
 
     init();
 </script>
-
 </body>
 </html>
+
 

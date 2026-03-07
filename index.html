@@ -38,7 +38,10 @@
         .sub-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #222; }
         .sub-prob { color: var(--accent); font-weight: bold; width: 50px; }
         .sub-choice { flex-grow: 1; color: var(--text-dim); }
-        #load-sentinel { height: 150px; display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 0.9rem; margin-top: 20px; }
+        
+        /* Loading Sentinel - Height is key to catching the scroll */
+        #load-sentinel { height: 100px; display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 0.9rem; margin-top: 20px; }
+        
         footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; }
         .footer-links a { color: var(--accent); text-decoration: none; font-weight: bold; }
     </style>
@@ -59,8 +62,7 @@
     </div>
 
     <div id="odds-list"></div>
-    
-    <div id="load-sentinel">● PREPARING FEED...</div>
+    <div id="load-sentinel">● LOADING DATA...</div>
 
     <footer>
         <div class="footer-links">Data powered by <a href="https://polymarket.com" target="_blank">Polymarket</a></div>
@@ -79,15 +81,17 @@
     let filteredData = [];   
     let currentIndex = 0; 
     let isLoading = false; 
-    const itemsPerPage = 10; // Smaller initial batch to prevent run-away loading
+    const itemsPerPage = 15;
 
-    // THE OBSERVER (Defined early)
+    // THE IMPROVED OBSERVER
     const observer = new IntersectionObserver((entries) => {
-        // If the bottom is visible AND we aren't already loading...
-        if (entries[0].isIntersecting && !isLoading && filteredData.length > 0) {
+        if (entries[0].isIntersecting && !isLoading && currentIndex < filteredData.length) {
             loadNext();
         }
-    }, { rootMargin: '100px' });
+    }, { 
+        rootMargin: '400px', // Trigger 400px BEFORE the element hits the screen
+        threshold: 0.01 
+    });
 
     async function init() {
         try {
@@ -120,11 +124,8 @@
             allGroupedData.forEach(g => g.markets.sort((a,b) => b.prob - a.prob));
             
             filteredData = [...allGroupedData];
-            
-            // Just set the status. The Observer will take it from here!
             status.innerText = `● SYSTEM LIVE: ${filteredData.length} TOPICS`;
             
-            // Clean out the list and let the sentinel trigger the first load
             list.innerHTML = "";
             currentIndex = 0;
             observer.observe(sentinel);
@@ -136,21 +137,17 @@
         const query = searchInput.value.toLowerCase();
         filteredData = allGroupedData.filter(g => g.title.toLowerCase().includes(query) || g.markets.some(m => m.choice.toLowerCase().includes(query)));
         
-        // Reset count and clear list
         list.innerHTML = "";
         currentIndex = 0;
         isLoading = false; 
         status.innerText = `● RESULTS: ${filteredData.length}`;
-        
-        // The observer will automatically trigger loadNext because the screen is now empty!
+        // Observer handles the rest
     }
 
     function loadNext() {
         if (currentIndex >= filteredData.length || isLoading) return;
         
         isLoading = true; 
-        sentinel.innerText = "● LOADING BATCH...";
-
         const nextBatch = filteredData.slice(currentIndex, currentIndex + itemsPerPage);
         let html = "";
         
@@ -186,16 +183,13 @@
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
         
-        // Set a slight timeout before allowing the next load. 
-        // This gives the browser time to render the HTML so the sentinel moves off-screen.
-        setTimeout(() => {
-            isLoading = false;
-            if (currentIndex >= filteredData.length) {
-                sentinel.innerText = "END OF LIST";
-            } else {
-                sentinel.innerText = "● SCROLL FOR MORE";
-            }
-        }, 500); 
+        // Immediate reset of isLoading unless we reached the end
+        if (currentIndex >= filteredData.length) {
+            sentinel.innerText = "END OF LIST";
+        } else {
+            sentinel.innerText = "● SCROLL FOR MORE";
+            isLoading = false; 
+        }
     }
 
     window.toggleGroup = function(id) {

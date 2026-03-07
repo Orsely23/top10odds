@@ -33,50 +33,51 @@
     const status = document.getElementById('status');
 
     async function init() {
-        status.innerText = "Scanning 100+ Markets...";
+        status.innerText = "DIAGNOSTIC MODE: LOADING ALL DATA...";
         try {
             const response = await fetch('./data.json?v=' + Date.now());
             const rawData = await response.json();
             
-            let html = `<div class="timestamp">Live Feed Update: ${new Date().toLocaleTimeString()}</div>`;
-            let activeCount = 0;
-
+            let html = `<div class="timestamp">Displaying All Data (No Filters)</div>`;
+            
             rawData.forEach(event => {
                 const mainMarket = event.markets ? event.markets[0] : null;
                 if (!mainMarket) return;
 
-                // GET PRICE
+                // --- CALCULATION ---
                 let p = 0;
                 try {
                     const prices = JSON.parse(mainMarket.outcomePrices);
                     p = parseFloat(prices[0]);
                 } catch(e) { p = parseFloat(mainMarket.price || 0); }
 
-                // RELAXED FILTER: Only hide the absolute 0% or 100% zombies
-                const isZombie = (p >= 0.99 || p <= 0.01 || mainMarket.active === false);
-                
-                // DATA PREP
                 const prob = Math.round(p * 100);
+                
+                // --- THE RED/GREEN LOGIC ---
+                // We define a Zombie as anything at the extreme ends or inactive
+                const isZombie = (prob >= 99 || prob <= 1 || mainMarket.active === false);
+                const color = isZombie ? "#ff4d4d" : "#00ff88"; // Red for Zombie, Green for Active
+                const bgColor = isZombie ? "rgba(255, 77, 77, 0.1)" : "rgba(0, 255, 136, 0.1)";
+
                 const eventTitle = (event.title || "").replace(/by ___ \?/g, "").trim();
                 const choice = mainMarket.groupItemTitle || "";
-                const displayTitle = choice && !eventTitle.includes(choice) ? `${eventTitle} (${choice})` : eventTitle;
 
-                if (!isZombie) {
-                    activeCount++;
-                    html += `
-                    <div class="item">
-                        <span class="percentage">${prob}%</span>
-                        <span class="text">odds for ${displayTitle}</span>
-                        <span class="volume-badge">${formatVol(event.volume)}</span>
-                    </div>`;
-                }
+                html += `
+                <div class="item" style="border-left: 5px solid ${color}; background: ${bgColor}; margin-bottom: 10px; padding: 15px;">
+                    <span class="percentage" style="color: ${color}">${prob}%</span>
+                    <div class="text">
+                        <strong style="color: ${color}">${isZombie ? 'ZOMBIE (FILTERED)' : 'ACTIVE'}</strong><br>
+                        odds for ${eventTitle} ${choice ? `(${choice})` : ''}
+                    </div>
+                    <span class="volume-badge" style="border-color: ${color}">${formatVol(event.volume)}</span>
+                </div>`;
             });
             
             list.innerHTML = html;
-            status.style.color = "#00ff88";
-            status.innerText = `● SYSTEM LIVE: ${activeCount} MARKETS TRACKED`;
+            status.style.color = "#ffcc00";
+            status.innerText = "● SHOWING ALL LINES (RED = WOULD BE HIDDEN)";
         } catch (e) {
-            status.innerText = "Syncing Feed...";
+            status.innerText = "Data Error - Bot Failure";
         }
     }
 
@@ -92,6 +93,7 @@
 </script>
 </body>
 </html>
+
 
 
 

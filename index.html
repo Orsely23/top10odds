@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Odds Feed</title>
     <style>
-        body {
+        /* Ensuring the document can actually scroll */
+        html, body {
+            height: auto;
+            min-height: 100%;
+            overflow-y: auto;
             background-color: #0d1117;
             color: #c9d1d9;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -48,11 +52,6 @@
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 15px;
-            transition: border-color 0.2s;
-        }
-
-        .item:hover {
-            border-color: #00ff88;
         }
 
         .percentage {
@@ -68,7 +67,6 @@
             padding: 0 20px;
             font-size: 1.1rem;
             color: #f0f6fc;
-            line-height: 1.4;
         }
 
         .choice-label {
@@ -85,22 +83,18 @@
             border-radius: 20px;
             font-size: 0.8rem;
             color: #8b949e;
-            white-space: nowrap;
         }
 
-        /* The Scroll Hint Styling */
         #scroll-hint {
             text-align: center;
             padding: 30px;
             color: #8b949e;
             font-weight: bold;
-            letter-spacing: 1px;
             text-transform: uppercase;
             font-size: 0.8rem;
             border: 1px dashed #30363d;
             border-radius: 8px;
-            margin-top: 10px;
-            margin-bottom: 50px;
+            margin: 20px 0 50px 0;
         }
     </style>
 </head>
@@ -109,11 +103,10 @@
 <div class="container">
     <header>
         <h1>TOP LIVE ODDS</h1>
-        <div id="status">INITIALIZING SCAN...</div>
+        <div id="status">INITIALIZING...</div>
     </header>
 
     <div id="odds-list"></div>
-    
     <div id="scroll-hint">Scroll down for more results</div>
 </div>
 
@@ -135,6 +128,7 @@
             currentIndex = 0;
             list.innerHTML = "";
 
+            // Sort by Volume
             rawData.sort((a, b) => parseFloat(b.volume || 0) - parseFloat(a.volume || 0));
 
             rawData.forEach(event => {
@@ -160,18 +154,19 @@
             });
 
             status.style.color = "#00ff88";
-            status.innerText = `● SYSTEM LIVE: ${allMarkets.length} MARKETS TRACKED`;
+            status.innerText = `● SYSTEM LIVE: ${allMarkets.length} MARKETS`;
             
-            loadMore(); 
+            // THE AUTO-FILL TRIGGER
+            loadBatch();
             
         } catch (e) {
             status.innerText = "OFFLINE";
         }
     }
 
-    function loadMore() {
+    function loadBatch() {
         if (currentIndex >= allMarkets.length) {
-            hint.innerText = "No more results to show";
+            hint.innerText = "END OF LIST";
             return;
         }
 
@@ -193,17 +188,20 @@
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
 
-        // Keep the hint at the bottom
-        if (currentIndex < allMarkets.length) {
-            hint.innerText = "Scroll down for more results";
+        // CRITICAL: If the items we just added didn't make the page long enough to scroll,
+        // load another batch immediately.
+        if (document.documentElement.scrollHeight <= window.innerHeight && currentIndex < allMarkets.length) {
+            loadBatch();
         }
     }
 
+    // Modern Scroll Listener
     window.addEventListener('scroll', () => {
         const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-        if (scrollTop + clientHeight >= scrollHeight - 300) {
+        // Trigger when within 400px of the bottom
+        if (scrollTop + clientHeight >= scrollHeight - 400) {
             if (currentIndex < allMarkets.length) {
-                loadMore();
+                loadBatch();
             }
         }
     }, { passive: true });

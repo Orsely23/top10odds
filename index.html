@@ -17,7 +17,7 @@
             --accent: #00ff88;
         }
 
-        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; }
+        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; scroll-behavior: smooth; }
         .container { max-width: 800px; margin: 0 auto; }
         header { text-align: center; padding: 40px 0 20px; }
         
@@ -28,7 +28,20 @@
         .search-container { position: sticky; top: 10px; z-index: 100; margin-bottom: 30px; }
         #search-input { width: 100%; padding: 15px 20px; background: var(--card); border: 1px solid var(--border); border-radius: 30px; color: #fff; font-size: 1rem; outline: none; box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
 
-        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; overflow: hidden; }
+        /* RESTORED: Hover Glow and Border */
+        .event-group { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            margin-bottom: 15px; 
+            overflow: hidden; 
+            transition: all 0.2s ease-in-out;
+        }
+        .event-group:hover { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.15); 
+        }
+
         .main-market { display: flex; align-items: center; padding: 20px; cursor: pointer; }
         .percentage { color: var(--accent); font-size: 2.2rem; font-weight: 800; min-width: 90px; text-align: center; }
         .text { flex-grow: 1; padding: 0 20px; font-size: 1.2rem; }
@@ -53,8 +66,29 @@
             margin: 20px 0 60px 0;
             text-transform: uppercase;
             letter-spacing: 1px;
+            transition: 0.2s;
         }
         #load-more-btn:hover { background: var(--accent); color: #000; }
+
+        /* RESTORED: Back to Top Button */
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            color: #000;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,255,136,0.3);
+            z-index: 1000;
+            font-weight: bold;
+        }
 
         footer { text-align: center; padding: 40px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; line-height: 1.6; }
     </style>
@@ -62,7 +96,7 @@
 <body>
 
 <div class="container">
-    <header>
+    <header id="top">
         <h1>TOP 10 LIVE ODDS</h1>
         <div id="status"><span class="pulse-dot"></span> <span id="status-text">SYNCING...</span></div>
         <div id="last-update" style="font-size:0.75rem; color:var(--text-dim); margin-top:5px; text-align:center;">Checking for updates...</div>
@@ -78,16 +112,28 @@
 
     <footer>
         Data powered by <a href="https://polymarket.com" target="_blank" style="color:var(--accent); text-decoration: none; font-weight: bold;">Polymarket</a><br>
-        <p style="max-width: 600px; margin: 15px auto;">This site is an independent aggregator. Odds are for informational purposes only. Always verify on source platform before betting.</p>
+        <p style="max-width: 600px; margin: 15px auto;">This site is an independent aggregator. Odds are for informational purposes only.</p>
         &copy; 2026 Top 10 Live Odds
     </footer>
 </div>
+
+<div id="back-to-top" onclick="window.scrollTo(0,0)">↑</div>
 
 <script>
     let allGroupedData = []; 
     let filteredData = [];   
     let currentIndex = 0; 
     const itemsPerPage = 20;
+    const backToTopBtn = document.getElementById('back-to-top');
+
+    // BACK TO TOP VISIBILITY LOGIC
+    window.onscroll = function() {
+        if (document.body.scrollTop > 500 || document.documentElement.scrollTop > 500) {
+            backToTopBtn.style.display = "flex";
+        } else {
+            backToTopBtn.style.display = "none";
+        }
+    };
 
     async function fetchData() {
         try {
@@ -185,15 +231,13 @@
         el.style.display = (el.style.display === "block") ? "none" : "block";
     };
 
-    // INIT AND 1-MINUTE SYNC
     (async () => {
         await fetchData();
         renderInitial();
         
         setInterval(async () => {
             await fetchData();
-            // Data refreshes in background; search/render remains stable for the user.
-        }, 60000);
+        }, 60000); // 1 Minute Sync
     })();
 </script>
 </body>

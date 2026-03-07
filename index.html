@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Top 10 Live Odds</title>
     
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d1117'/><path d='M20 70 l20-20 l15 15 l30-35 M85 30 l0 15 M85 30 l-15 0' stroke='%2300ff88' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d1117'/><path d='M20 70 l20-20 l15 15 l30-35 M85 30 l0 15 M85 30 l-15 0' stroke='%2300ff88' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -64,7 +64,7 @@
             margin-top: 5px;
         }
 
-        /* Sticky Search Bar */
+        /* Search Bar */
         .search-container {
             position: sticky;
             top: 10px;
@@ -83,14 +83,13 @@
             outline: none;
             box-sizing: border-box;
             box-shadow: 0 8px 25px rgba(0,0,0,0.6);
-            transition: border-color 0.2s;
         }
 
         #search-input:focus {
             border-color: var(--accent);
         }
 
-        /* Clustered Event Group Card */
+        /* Group Card */
         .event-group {
             background: var(--card);
             border: 1px solid var(--border);
@@ -100,7 +99,6 @@
             transition: all 0.2s ease;
         }
 
-        /* Green Hover Glow */
         .event-group:hover {
             border-color: var(--accent);
             box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
@@ -128,7 +126,6 @@
             line-height: 1.3;
         }
 
-        /* Large Sub-headline */
         .choice-label {
             display: block;
             color: var(--text-dim);
@@ -145,7 +142,7 @@
             color: var(--text-dim);
         }
 
-        /* Direct Bet Link Button */
+        /* Bet Button */
         .bet-btn {
             background: transparent;
             border: 1px solid var(--accent);
@@ -174,7 +171,7 @@
             text-align: center;
         }
 
-        /* Hidden Sub-Markets area */
+        /* Sub-items Cluster */
         .sub-markets {
             display: none;
             background: rgba(0, 0, 0, 0.25);
@@ -205,8 +202,29 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            margin: 20px 0 100px 0;
+            margin: 20px 0 50px 0;
             text-align: center;
+        }
+
+        /* LEGAL FOOTER */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 50px;
+            border-top: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .footer-links a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -222,12 +240,23 @@
     </header>
 
     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search 1,600+ markets (e.g. 'Bitcoin', 'NBA', 'Election')..." onkeyup="handleSearch()">
+        <input type="text" id="search-input" placeholder="Search 1,600+ markets..." onkeyup="handleSearch()">
     </div>
 
     <div id="odds-list"></div>
-    
     <div id="load-btn" onclick="loadNext()">SCROLL FOR MORE</div>
+
+    <footer>
+        <div class="footer-links">
+            Data powered by <a href="https://polymarket.com" target="_blank">Polymarket</a>
+        </div>
+        <p style="margin-top: 15px; max-width: 600px; margin-left: auto; margin-right: auto;">
+            This site is an independent aggregator and is not affiliated with, endorsed by, or 
+            officially connected to Polymarket. Odds are provided for informational purposes only. 
+            Always verify data on the source platform before making financial decisions.
+        </p>
+        <p>&copy; 2026 Top 10 Live Odds • All Rights Reserved</p>
+    </footer>
 </div>
 
 <script>
@@ -248,63 +277,53 @@
             if (!response.ok) throw new Error();
             const rawData = await response.json();
             
-            // Setup the Timestamp
             const now = new Date();
             updateText.innerText = `LAST UPDATE: ${now.toLocaleDateString()} AT ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
 
             const groups = {};
 
-            // 1. Cluster by Event Title
             rawData.forEach(event => {
-                const title = (event.title || "").replace(/by ___ \?/g, "").trim();
+                if (!event || !event.markets) return;
+                const title = (event.title || "Unknown Event").replace(/by ___ \?/g, "").trim();
                 const slug = event.slug || "";
-                if (!event.markets) return;
 
                 event.markets.forEach(market => {
-                    let p = 0;
                     try {
+                        let p = 0;
                         let prices = market.outcomePrices;
                         if (typeof prices === 'string') prices = JSON.parse(prices);
                         p = Array.isArray(prices) ? parseFloat(prices[0]) : parseFloat(market.price || 0);
+
+                        const prob = Math.round(p * 100);
+                        if (prob < 5 || prob > 95 || market.active === false) return;
+
+                        if (!groups[title]) {
+                            groups[title] = { title, slug, volume: parseFloat(event.volume || 0), markets: [] };
+                        }
+                        groups[title].markets.push({ prob, choice: market.groupItemTitle || "Yes" });
                     } catch(e) {}
-
-                    const prob = Math.round(p * 100);
-                    
-                    // Filter: Hide "Long Shots" (under 5%) and "Done Deals" (over 95%)
-                    if (prob < 5 || prob > 95 || market.active === false) return;
-
-                    if (!groups[title]) {
-                        groups[title] = {
-                            title: title,
-                            slug: slug,
-                            volume: parseFloat(event.volume || 0),
-                            markets: []
-                        };
-                    }
-                    groups[title].markets.push({ prob, choice: market.groupItemTitle || "Yes" });
                 });
             });
 
-            // 2. Sort Groups by Total Volume
             allGroupedData = Object.values(groups)
                 .filter(g => g.markets.length > 0)
                 .sort((a, b) => b.volume - a.volume);
             
-            // 3. Sort sub-markets by probability
             allGroupedData.forEach(g => g.markets.sort((a, b) => b.prob - a.prob));
             
             filteredData = [...allGroupedData];
             renderInitial();
 
         } catch (e) {
-            status.innerText = "OFFLINE";
-            updateText.innerText = "CHECK DATA SOURCE";
+            status.style.color = "#ff4444";
+            status.innerText = "OFFLINE - CHECK DATA SOURCE";
         }
     }
 
     function renderInitial() {
         list.innerHTML = "";
         currentIndex = 0;
+        status.style.color = "#00ff88";
         status.innerText = `● SYSTEM LIVE: ${filteredData.length} TOPICS`;
         btn.style.display = filteredData.length > 0 ? 'block' : 'none';
         loadNext();
@@ -331,7 +350,7 @@
             const main = group.markets[0];
             const hasMore = group.markets.length > 1;
             const groupId = `group-${currentIndex + index}`;
-            const betUrl = `https://polymarket.com/event/${group.slug}`;
+            const betUrl = group.slug ? `https://polymarket.com/event/${group.slug}` : `https://polymarket.com`;
 
             let html = `
             <div class="event-group">
@@ -364,7 +383,6 @@
         btn.innerText = `SHOWING ${currentIndex} OF ${filteredData.length} TOPICS`;
     }
 
-    // Toggle logic for the clustered groups
     window.toggleGroup = function(id) {
         const el = document.getElementById(id);
         const btnText = document.getElementById(`btn-${id}`);
@@ -373,7 +391,6 @@
         if (btnText) btnText.innerText = isVisible ? "+" : "-";
     };
 
-    // Infinite Scroll Logic
     window.onscroll = function() {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
             if (currentIndex < filteredData.length) loadNext();
@@ -393,5 +410,3 @@
 
 </body>
 </html>
-
-

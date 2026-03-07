@@ -90,10 +90,43 @@
         return '$' + Math.round(num);
     }
 
-    init();
+ rawData.forEach(event => {
+                try {
+                    const mainMarket = event.markets ? event.markets[0] : null;
+                    if (!mainMarket) return;
+
+                    let p = 0;
+                    let rawPrices = mainMarket.outcomePrices;
+                    if (typeof rawPrices === 'string') rawPrices = JSON.parse(rawPrices);
+                    p = Array.isArray(rawPrices) ? parseFloat(rawPrices[0]) : parseFloat(mainMarket.price || 0);
+
+                    const prob = Math.round(p * 100);
+                    
+                    // Filter: Only show high-quality active bets
+                    if (prob >= 99 || prob <= 1 || mainMarket.active === false) return;
+
+                    activeCount++;
+                    
+                    let eventTitle = (event.title || "").replace(/by ___ \?/g, "").trim();
+                    const choice = mainMarket.groupItemTitle || "";
+                    
+                    // Limit title length for better UI on mobile
+                    if (eventTitle.length > 85) eventTitle = eventTitle.substring(0, 82) + "...";
+
+                    html += `
+                    <div class="item">
+                        <span class="percentage">${prob}%</span>
+                        <div class="text">
+                            ${eventTitle} <span style="color: #888; font-size: 0.85em;">${choice ? `[${choice}]` : ''}</span>
+                        </div>
+                        <span class="volume-badge">${formatVol(event.volume)}</span>
+                    </div>`;
+                } catch (err) { }
+            });
 </script>
 </body>
 </html>
+
 
 
 

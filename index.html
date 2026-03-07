@@ -7,10 +7,6 @@
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d1117'/><path d='M20 70 l20-20 l15 15 l30-35 M85 30 l0 15 M85 30 l-15 0' stroke='%2300ff88' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
     
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0d1117">
-
     <style>
         :root {
             --bg: #0d1117;
@@ -64,7 +60,6 @@
             margin-top: 5px;
         }
 
-        /* Search Bar */
         .search-container {
             position: sticky;
             top: 10px;
@@ -85,11 +80,6 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
 
-        #search-input:focus {
-            border-color: var(--accent);
-        }
-
-        /* Group Card */
         .event-group {
             background: var(--card);
             border: 1px solid var(--border);
@@ -142,7 +132,6 @@
             color: var(--text-dim);
         }
 
-        /* Bet Button */
         .bet-btn {
             background: transparent;
             border: 1px solid var(--accent);
@@ -171,7 +160,6 @@
             text-align: center;
         }
 
-        /* Sub-items Cluster */
         .sub-markets {
             display: none;
             background: rgba(0, 0, 0, 0.25);
@@ -184,48 +172,33 @@
             align-items: center;
             padding: 12px 0;
             border-bottom: 1px solid #222;
-            font-size: 1.05rem;
         }
-
-        .sub-item:last-child { border-bottom: none; }
 
         .sub-prob { color: var(--accent); font-weight: bold; width: 50px; }
         .sub-choice { flex-grow: 1; color: var(--text-dim); }
 
-        #load-btn {
-            display: block;
-            width: 100%;
-            padding: 20px;
-            background: var(--card);
+        /* The Infinite Trigger Sentinel */
+        #load-sentinel {
+            height: 50px;
+            margin-bottom: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--text-dim);
-            border: 1px dashed var(--border);
-            border-radius: 8px;
-            cursor: pointer;
             font-weight: bold;
-            margin: 20px 0 50px 0;
-            text-align: center;
+            font-size: 0.9rem;
         }
 
-        /* LEGAL FOOTER */
         footer {
             text-align: center;
             padding: 40px 20px;
-            margin-top: 50px;
             border-top: 1px solid var(--border);
             color: var(--text-dim);
             font-size: 0.85rem;
             line-height: 1.6;
         }
 
-        .footer-links a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
+        .footer-links a { color: var(--accent); text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -244,18 +217,15 @@
     </div>
 
     <div id="odds-list"></div>
-    <div id="load-btn" onclick="loadNext()">SCROLL FOR MORE</div>
+    
+    <div id="load-sentinel">LOADING MORE...</div>
 
     <footer>
-        <div class="footer-links">
-            Data powered by <a href="https://polymarket.com" target="_blank">Polymarket</a>
-        </div>
+        <div class="footer-links">Data powered by <a href="https://polymarket.com" target="_blank">Polymarket</a></div>
         <p style="margin-top: 15px; max-width: 600px; margin-left: auto; margin-right: auto;">
-            This site is an independent aggregator and is not affiliated with, endorsed by, or 
-            officially connected to Polymarket. Odds are provided for informational purposes only. 
-            Always verify data on the source platform before making financial decisions.
+            This site is an independent aggregator and is not officially affiliated with Polymarket. Odds are for informational purposes only.
         </p>
-        <p>&copy; 2026 Top 10 Live Odds • All Rights Reserved</p>
+        <p>&copy; 2026 Top 10 Live Odds</p>
     </footer>
 </div>
 
@@ -263,13 +233,13 @@
     const list = document.getElementById('odds-list');
     const status = document.getElementById('status');
     const updateText = document.getElementById('last-update');
-    const btn = document.getElementById('load-btn');
+    const sentinel = document.getElementById('load-sentinel');
     const searchInput = document.getElementById('search-input');
     
     let allGroupedData = []; 
     let filteredData = [];   
     let currentIndex = 0; 
-    const itemsPerPage = 12;
+    const itemsPerPage = 15;
 
     async function init() {
         try {
@@ -281,10 +251,9 @@
             updateText.innerText = `LAST UPDATE: ${now.toLocaleDateString()} AT ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
 
             const groups = {};
-
             rawData.forEach(event => {
                 if (!event || !event.markets) return;
-                const title = (event.title || "Unknown Event").replace(/by ___ \?/g, "").trim();
+                const title = (event.title || "Unknown").replace(/by ___ \?/g, "").trim();
                 const slug = event.slug || "";
 
                 event.markets.forEach(market => {
@@ -312,7 +281,10 @@
             allGroupedData.forEach(g => g.markets.sort((a, b) => b.prob - a.prob));
             
             filteredData = [...allGroupedData];
-            renderInitial();
+            resetAndRender();
+
+            // START THE OBSERVER
+            observer.observe(sentinel);
 
         } catch (e) {
             status.style.color = "#ff4444";
@@ -320,12 +292,10 @@
         }
     }
 
-    function renderInitial() {
+    function resetAndRender() {
         list.innerHTML = "";
         currentIndex = 0;
-        status.style.color = "#00ff88";
         status.innerText = `● SYSTEM LIVE: ${filteredData.length} TOPICS`;
-        btn.style.display = filteredData.length > 0 ? 'block' : 'none';
         loadNext();
     }
 
@@ -335,12 +305,12 @@
             group.title.toLowerCase().includes(query) || 
             group.markets.some(m => m.choice.toLowerCase().includes(query))
         );
-        renderInitial();
+        resetAndRender();
     }
 
     function loadNext() {
         if (currentIndex >= filteredData.length) {
-            btn.innerText = "END OF LIST";
+            sentinel.innerText = "END OF LIST";
             return;
         }
 
@@ -380,8 +350,15 @@
         });
 
         currentIndex += itemsPerPage;
-        btn.innerText = `SHOWING ${currentIndex} OF ${filteredData.length} TOPICS`;
+        sentinel.innerText = `SHOWING ${currentIndex} OF ${filteredData.length} TOPICS`;
     }
+
+    // THE MAGIC OBSERVER
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            loadNext();
+        }
+    }, { threshold: 0.1 });
 
     window.toggleGroup = function(id) {
         const el = document.getElementById(id);
@@ -389,12 +366,6 @@
         const isVisible = (el.style.display === "block");
         el.style.display = isVisible ? "none" : "block";
         if (btnText) btnText.innerText = isVisible ? "+" : "-";
-    };
-
-    window.onscroll = function() {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
-            if (currentIndex < filteredData.length) loadNext();
-        }
     };
 
     function formatVol(n) {
@@ -407,6 +378,5 @@
 
     init();
 </script>
-
 </body>
 </html>

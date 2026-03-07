@@ -43,7 +43,6 @@
         .sub-prob { color: var(--accent); font-weight: bold; width: 50px; }
         .sub-choice { flex-grow: 1; color: var(--text-dim); }
         
-        /* Floating Back to Top Button */
         #back-to-top {
             position: fixed;
             bottom: 30px;
@@ -53,27 +52,29 @@
             background: var(--accent);
             color: #000;
             border-radius: 50%;
-            display: none; /* Hidden by default */
+            display: none;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,255,136,0.3);
             z-index: 1000;
-            font-weight: bold;
         }
 
+        /* Adjusted Sentinel for manual click or auto-scroll */
         #load-sentinel { 
-            height: 120px; 
+            height: 80px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            color: var(--text-dim); 
+            color: var(--accent); 
             font-size: 0.9rem; 
-            margin-top: 20px;
+            font-weight: bold;
+            margin: 20px 0 40px 0;
             border: 1px dashed var(--border);
             border-radius: 12px;
-            background: rgba(255,255,255,0.02);
+            background: rgba(0, 255, 136, 0.03);
+            cursor: pointer;
         }
         
         footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; }
@@ -96,7 +97,7 @@
     </div>
 
     <div id="odds-list"></div>
-    <div id="load-sentinel">● SCROLL FOR MORE</div>
+    <div id="load-sentinel" onclick="loadNext()">● SCROLL FOR MORE</div>
 
     <footer>
         <div class="footer-links">Data powered by <a href="https://polymarket.com" target="_blank">Polymarket</a></div>
@@ -120,23 +121,19 @@
     let isLoading = false; 
     const itemsPerPage = 15;
 
-    // THE OBSERVER
+    // OBSERVER: set to 0px so it only fires when you actually SEE the sentinel
     const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && !isLoading && currentIndex < filteredData.length) {
             loadNext();
         }
     }, { 
-        rootMargin: '250px', // Balanced: loads ahead but lets you see the transition
-        threshold: 0.01 
+        rootMargin: '0px', 
+        threshold: 0.1 
     });
 
-    // BACK TO TOP VISIBILITY
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 500) {
-            backToTopBtn.style.display = 'flex';
-        } else {
-            backToTopBtn.style.display = 'none';
-        }
+        if (window.scrollY > 500) { backToTopBtn.style.display = 'flex'; } 
+        else { backToTopBtn.style.display = 'none'; }
     });
 
     async function init() {
@@ -182,17 +179,19 @@
     function handleSearch() {
         const query = searchInput.value.toLowerCase();
         filteredData = allGroupedData.filter(g => g.title.toLowerCase().includes(query) || g.markets.some(m => m.choice.toLowerCase().includes(query)));
-        
         list.innerHTML = "";
         currentIndex = 0;
         isLoading = false; 
         status.innerText = `● RESULTS: ${filteredData.length}`;
+        // Sentinel will be visible, triggering first batch of search results
     }
 
     function loadNext() {
         if (currentIndex >= filteredData.length || isLoading) return;
         
         isLoading = true; 
+        sentinel.innerText = "● LOADING BATCH...";
+
         const nextBatch = filteredData.slice(currentIndex, currentIndex + itemsPerPage);
         let html = "";
         
@@ -228,12 +227,16 @@
         list.insertAdjacentHTML('beforeend', html);
         currentIndex += itemsPerPage;
         
-        if (currentIndex >= filteredData.length) {
-            sentinel.innerText = "END OF LIST";
-        } else {
-            sentinel.innerText = `SHOWING ${currentIndex} OF ${filteredData.length} - SCROLL FOR MORE`;
-            isLoading = false; 
-        }
+        // Timeout to allow the browser to push the sentinel back down
+        setTimeout(() => {
+            isLoading = false;
+            if (currentIndex >= filteredData.length) {
+                sentinel.innerText = "END OF LIST";
+                sentinel.style.display = "none";
+            } else {
+                sentinel.innerText = "● SCROLL FOR MORE";
+            }
+        }, 100); 
     }
 
     window.toggleGroup = function(id) {

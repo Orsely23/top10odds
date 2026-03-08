@@ -16,7 +16,6 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d1117'/><path d='M20 70 l20-20 l15 15 l30-35 M85 30 l0 15 M85 30 l-15 0' stroke='%2300ff88' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
     
     <style>
-        /* THEME VARIABLES */
         :root {
             --bg: #0d1117;
             --card: #161b22;
@@ -27,52 +26,55 @@
             --search-bg: #161b22;
         }
 
-        /* BRIGHT MODE OVERRIDES */
         body.bright-mode {
             --bg: #ffffff;
             --card: #f6f8fa;
             --border: #d0d7de;
             --text-main: #1f2328;
             --text-dim: #57606a;
-            --accent: #00a35c; /* Slightly darker green for readability on white */
+            --accent: #00a35c;
             --search-bg: #ffffff;
         }
+
+        * { box-sizing: border-box; } /* CRITICAL FIX: Ensures padding doesn't add to width */
 
         body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; scroll-behavior: smooth; transition: background-color 0.3s, color 0.3s; }
         .container { max-width: 800px; margin: 0 auto; }
         
         header { text-align: center; padding: 40px 0 20px; position: relative; }
         
-        /* THEME TOGGLE BUTTON */
         #theme-toggle {
-            position: absolute;
-            top: 10px;
-            right: 0;
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: 0.2s;
+            position: absolute; top: 10px; right: 0;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text-main); padding: 8px 12px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; gap: 5px; transition: 0.2s;
         }
-        #theme-toggle:hover { border-color: var(--accent); }
 
         #status { font-size: 0.9rem; color: var(--accent); font-weight: bold; text-transform: uppercase; display: flex; align-items: center; justify-content: center; }
         .pulse-dot { width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%; margin-right: 10px; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } }
 
-        .search-container { position: sticky; top: 10px; z-index: 100; margin-bottom: 30px; }
+        /* SEARCH BAR FIX */
+        .search-container { 
+            position: sticky; 
+            top: 10px; 
+            z-index: 100; 
+            margin-bottom: 30px; 
+            width: 100%; 
+        }
         #search-input { 
-            width: 100%; padding: 15px 20px; background: var(--search-bg); 
-            border: 1px solid var(--border); border-radius: 30px; 
-            color: var(--text-main); font-size: 1rem; outline: none; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1); transition: all 0.2s;
+            width: 100%; 
+            padding: 15px 20px; 
+            background: var(--search-bg); 
+            border: 1px solid var(--border); 
+            border-radius: 30px; 
+            color: var(--text-main); 
+            font-size: 1rem; 
+            outline: none; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); 
+            transition: all 0.2s;
+            display: block; /* Ensures it behaves as a block element */
         }
         #search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2); }
 
@@ -145,17 +147,11 @@
     const itemsPerPage = 10;
     const backToTopBtn = document.getElementById('back-to-top');
 
-    // THEME TOGGLE LOGIC
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('theme-toggle');
         body.classList.toggle('bright-mode');
-        
-        if (body.classList.contains('bright-mode')) {
-            btn.innerHTML = "🌙 Dark Mode";
-        } else {
-            btn.innerHTML = "☀️ Bright Mode";
-        }
+        btn.innerHTML = body.classList.contains('bright-mode') ? "🌙 Dark Mode" : "☀️ Bright Mode";
     }
 
     window.onscroll = function() {

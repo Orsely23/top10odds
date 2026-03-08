@@ -6,7 +6,6 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-C7D4T0JH70');
     </script>
 
@@ -35,33 +34,17 @@
         @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } }
 
         .search-container { position: sticky; top: 10px; z-index: 100; margin-bottom: 30px; }
-        
-        /* UPDATED: Search Input with Focus Glow */
         #search-input { 
             width: 100%; padding: 15px 20px; background: var(--card); 
             border: 1px solid var(--border); border-radius: 30px; 
             color: #fff; font-size: 1rem; outline: none; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6); 
-            transition: all 0.2s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6); transition: all 0.2s;
         }
-        #search-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2), 0 8px 25px rgba(0,0,0,0.6);
-        }
+        #search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2), 0 8px 25px rgba(0,0,0,0.6); }
 
-        .event-group { 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            margin-bottom: 15px; 
-            overflow: hidden; 
-            transition: all 0.2s ease;
-        }
-        .event-group:hover { 
-            border-color: var(--accent); 
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.15); 
-        }
-
+        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; overflow: hidden; transition: 0.2s; }
+        .event-group:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 136, 0.15); }
+        
         .main-market { display: flex; align-items: center; padding: 20px; cursor: pointer; }
         .percentage { color: var(--accent); font-size: 2.2rem; font-weight: 800; min-width: 90px; text-align: center; }
         .text { flex-grow: 1; padding: 0 20px; font-size: 1.2rem; }
@@ -75,24 +58,21 @@
         .sub-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #222; }
 
         #load-more-btn {
-            width: 100%; padding: 20px; background: var(--card); 
-            color: var(--accent); border: 2px solid var(--accent); 
-            border-radius: 12px; font-weight: bold; cursor: pointer; 
-            margin: 20px 0 60px 0; text-transform: uppercase; 
-            letter-spacing: 1px; transition: 0.2s;
+            width: 100%; padding: 20px; background: var(--card); color: var(--accent); 
+            border: 2px solid var(--accent); border-radius: 12px; font-weight: bold; 
+            cursor: pointer; margin: 20px 0 60px 0; text-transform: uppercase; transition: 0.2s;
         }
         #load-more-btn:hover { background: var(--accent); color: #000; }
 
         #back-to-top {
-            position: fixed; bottom: 30px; right: 30px; 
-            width: 50px; height: 50px; background: var(--accent); 
-            color: #000; border-radius: 50%; display: none; 
-            align-items: center; justify-content: center; 
-            font-size: 1.5rem; cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(0,255,136,0.3); z-index: 1000;
+            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; 
+            background: var(--accent); color: #000; border-radius: 50%; display: none; 
+            align-items: center; justify-content: center; font-size: 1.5rem; 
+            cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,136,0.3); z-index: 1000;
         }
 
         footer { text-align: center; padding: 40px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; line-height: 1.6; }
+        .footer-links a { color: var(--accent); text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -112,8 +92,8 @@
     <button id="load-more-btn" onclick="loadNext()">Load More Results</button>
 
     <footer>
-        Data powered by <a href="https://polymarket.com" target="_blank" style="color:var(--accent); text-decoration: none; font-weight: bold;">Polymarket</a><br>
-        <p style="max-width: 600px; margin: 15px auto;">This site is an independent aggregator. Odds are for informational purposes only.</p>
+        <div class="footer-links">Data powered by <a href="https://polymarket.com" target="_blank">Polymarket</a></div>
+        <p style="max-width: 600px; margin: 15px auto;">Independent aggregator. Odds for informational purposes only.</p>
         &copy; 2026 Top 10 Live Odds
     </footer>
 </div>
@@ -124,7 +104,7 @@
     let allGroupedData = []; 
     let filteredData = [];   
     let currentIndex = 0; 
-    const itemsPerPage = 20;
+    const itemsPerPage = 10; // CHANGED FROM 20 TO 10
     const backToTopBtn = document.getElementById('back-to-top');
 
     window.onscroll = function() {
@@ -135,7 +115,6 @@
         }
     };
 
-    // UPDATED: Volume Shortener Logic
     function formatVol(n) {
         let num = parseFloat(n);
         if (isNaN(num) || num === 0) return '$0';
@@ -148,7 +127,6 @@
         try {
             const response = await fetch('./data.json?v=' + Date.now());
             const rawData = await response.json();
-            
             const groups = {};
             rawData.forEach(event => {
                 if (!event || !event.markets) return;
@@ -172,16 +150,11 @@
 
             allGroupedData = Object.values(groups).filter(g => g.markets.length > 0).sort((a,b) => b.volume - a.volume);
             allGroupedData.forEach(g => g.markets.sort((a,b) => b.prob - a.prob));
-            
             const now = new Date();
             document.getElementById('last-update').innerText = `LAST SYNC: ${now.toLocaleTimeString()}`;
             document.getElementById('status-text').innerText = `SYSTEM LIVE: ${allGroupedData.length} TOPICS`;
-            
             return true;
-        } catch (e) {
-            document.getElementById('status-text').innerText = "OFFLINE";
-            return false;
-        }
+        } catch (e) { return false; }
     }
 
     function renderInitial() {
@@ -202,13 +175,11 @@
     function loadNext() {
         const list = document.getElementById('odds-list');
         const nextBatch = filteredData.slice(currentIndex, currentIndex + itemsPerPage);
-        
         nextBatch.forEach((group, idx) => {
             const main = group.markets[0];
             const hasMore = group.markets.length > 1;
             const groupId = `group-${currentIndex + idx}`;
             const betUrl = group.slug ? `https://polymarket.com/event/${group.slug}` : `https://polymarket.com`;
-
             const html = `
             <div class="event-group">
                 <div class="main-market">
@@ -232,7 +203,6 @@
             </div>`;
             list.insertAdjacentHTML('beforeend', html);
         });
-
         currentIndex += itemsPerPage;
         document.getElementById('load-more-btn').style.display = (currentIndex >= filteredData.length) ? "none" : "block";
     }
@@ -250,4 +220,3 @@
 </script>
 </body>
 </html>
-

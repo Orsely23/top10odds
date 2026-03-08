@@ -36,7 +36,7 @@
             --search-bg: #ffffff;
         }
 
-        * { box-sizing: border-box; } /* CRITICAL FIX: Ensures padding doesn't add to width */
+        * { box-sizing: border-box; }
 
         body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; scroll-behavior: smooth; transition: background-color 0.3s, color 0.3s; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -55,26 +55,13 @@
         .pulse-dot { width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%; margin-right: 10px; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } }
 
-        /* SEARCH BAR FIX */
-        .search-container { 
-            position: sticky; 
-            top: 10px; 
-            z-index: 100; 
-            margin-bottom: 30px; 
-            width: 100%; 
-        }
+        .search-container { position: sticky; top: 10px; z-index: 100; margin-bottom: 30px; width: 100%; }
         #search-input { 
-            width: 100%; 
-            padding: 15px 20px; 
-            background: var(--search-bg); 
-            border: 1px solid var(--border); 
-            border-radius: 30px; 
-            color: var(--text-main); 
-            font-size: 1rem; 
-            outline: none; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1); 
-            transition: all 0.2s;
-            display: block; /* Ensures it behaves as a block element */
+            width: 100%; padding: 15px 20px; background: var(--search-bg); 
+            border: 1px solid var(--border); border-radius: 30px; 
+            color: var(--text-main); font-size: 1rem; outline: none; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); transition: all 0.2s;
+            display: block;
         }
         #search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2); }
 
@@ -147,11 +134,23 @@
     const itemsPerPage = 10;
     const backToTopBtn = document.getElementById('back-to-top');
 
+    // MODIFIED TOGGLE LOGIC
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('theme-toggle');
         body.classList.toggle('bright-mode');
-        btn.innerHTML = body.classList.contains('bright-mode') ? "🌙 Dark Mode" : "☀️ Bright Mode";
+        
+        const isBright = body.classList.contains('bright-mode');
+        btn.innerHTML = isBright ? "🌙 Dark Mode" : "☀️ Bright Mode";
+        
+        // Save choice to memory
+        localStorage.setItem('preferredTheme', isBright ? 'bright' : 'dark');
+    }
+
+    // Apply saved theme on startup
+    if (localStorage.getItem('preferredTheme') === 'bright') {
+        document.body.classList.add('bright-mode');
+        document.getElementById('theme-toggle').innerHTML = "🌙 Dark Mode";
     }
 
     window.onscroll = function() {

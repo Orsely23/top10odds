@@ -13,11 +13,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <title>Top 10 Odds Live | Real-Time Polymarket Tracking</title>
-    <meta name="description" content="Get the top 10 live odds from Polymarket. Real-time predictions, volume tracking, and market trends for politics, sports, and world events.">
+    <meta name="description" content="Get the top 10 live odds from Polymarket. Real-time predictions, volume tracking, and market trends.">
     <meta property="og:title" content="Top 10 Odds Live | Real-Time Market Predictions">
     <meta property="og:description" content="Track the biggest moves in the prediction markets. Updated live.">
     <meta property="og:url" content="https://www.top10oddslive.com">
     <meta property="og:type" content="website">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Odds Live">
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d1117'/><path d='M20 70 l20-20 l15 15 l30-35 M85 30 l0 15 M85 30 l-15 0' stroke='%2300ff88' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
     
@@ -77,7 +82,6 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } 
         }
 
-        /* STICKY SEARCH BAR */
         .search-container { 
             position: sticky; 
             top: 10px; 
@@ -96,7 +100,6 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        /* DATA CARDS */
         .event-group { 
             background: var(--card); 
             border: 1px solid var(--border); 
@@ -148,7 +151,6 @@
         }
         body.bright-mode .bet-btn { color: #fff; }
 
-        /* ACCORDION STYLING */
         .sub-markets { 
             display: none; 
             background: rgba(0,0,0,0.15); 
@@ -161,9 +163,7 @@
             padding: 10px 0; 
             border-bottom: 1px solid var(--border); 
         }
-        .sub-item:last-child { border-bottom: none; }
 
-        /* DESKTOP ENHANCEMENTS */
         @media (min-width: 600px) {
             body { padding: 20px; }
             h1 { font-size: 2.2rem; }

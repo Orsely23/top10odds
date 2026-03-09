@@ -287,6 +287,15 @@
         el.style.display = (el.style.display === "block") ? "none" : "block";
     };
 
+    // SERVICE WORKER REGISTRATION (Required for Android)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW Registered'))
+                .catch(err => console.log('SW Failed', err));
+        });
+    }
+
     (async () => {
         const success = await fetchData();
         if(success) renderInitial();

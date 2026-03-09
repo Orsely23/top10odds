@@ -78,7 +78,6 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } 
         }
 
-        /* SEARCH BAR HOVER/FOCUS EFFECT */
         .search-container { position: sticky; top: 10px; z-index: 100; margin: 15px 0 20px 0; }
         #search-input { 
             width: 100%; padding: 14px 22px; background: var(--search-bg); 
@@ -94,9 +93,7 @@
             font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,136,0.3);
             text-transform: uppercase; font-size: 0.85rem; transition: 0.2s;
         }
-        #install-banner:hover { transform: scale(1.02); }
 
-        /* LINE HOVER EFFECT */
         .event-group { 
             background: var(--card); border: 1px solid var(--border); 
             border-radius: 16px; margin-bottom: 12px; overflow: hidden; 
@@ -104,29 +101,52 @@
         }
         .event-group:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 
-        .main-market { display: flex; align-items: center; padding: 12px; gap: 5px; cursor: pointer; }
+        /* FLEX WRAP FOR MOBILE ROW CONTROL */
+        .main-market { 
+            display: flex; 
+            align-items: center; 
+            padding: 12px; 
+            gap: 10px; 
+            cursor: pointer; 
+            flex-wrap: wrap; /* Key for mobile 2-row */
+        }
+        
         .percentage { color: var(--accent); font-size: 1.6rem; font-weight: 800; min-width: 65px; text-align: center; }
-        .text { flex-grow: 1; flex-shrink: 1; padding: 0 5px; font-size: 0.95rem; line-height: 1.2; font-weight: 600; overflow-wrap: break-word; }
+        
+        /* Text takes up full remaining width to force button down on mobile */
+        .text { 
+            flex: 1 1 200px; 
+            padding: 0 5px; 
+            font-size: 0.95rem; 
+            line-height: 1.2; 
+            font-weight: 600; 
+            overflow-wrap: break-word; 
+        }
+        
         .choice-label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; font-weight: normal; }
         
         .bet-btn { 
-            background: var(--accent); color: #000; padding: 8px 12px; border-radius: 8px; 
-            font-size: 0.7rem; font-weight: 800; text-decoration: none; 
-            white-space: nowrap; flex-shrink: 0; text-align: center; transition: 0.2s;
+            background: var(--accent); color: #000; padding: 10px 15px; border-radius: 8px; 
+            font-size: 0.75rem; font-weight: 800; text-decoration: none; 
+            white-space: nowrap; text-align: center; transition: 0.2s;
+            flex: 1 0 100%; /* Force button to take full width on mobile (2nd row) */
+            margin-top: 5px;
         }
-        .bet-btn:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 0 10px rgba(0, 255, 136, 0.4); }
+        .bet-btn:hover { filter: brightness(1.1); box-shadow: 0 0 10px rgba(0, 255, 136, 0.4); }
         body.bright-mode .bet-btn { color: #fff; }
 
         .sub-markets { display: none; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); padding: 5px 12px 12px 12px; }
-        .sub-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 5px; }
+        .sub-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
 
+        /* DESKTOP REVERT TO 1-ROW */
         @media (min-width: 600px) {
             body { padding: 20px; }
             h1 { font-size: 2.2rem; }
-            .main-market { padding: 20px; gap: 15px; }
+            .main-market { padding: 20px; gap: 15px; flex-wrap: nowrap; }
             .percentage { font-size: 2.2rem; min-width: 90px; }
-            .text { font-size: 1.2rem; padding: 0 20px; }
-            .bet-btn { font-size: 0.8rem; padding: 10px 18px; }
+            .text { font-size: 1.2rem; padding: 0 20px; flex: 1; }
+            .bet-btn { font-size: 0.8rem; padding: 10px 18px; flex: 0 0 auto; margin-top: 0; }
+            .sub-item { flex-wrap: nowrap; }
         }
 
         #load-more-btn { 
@@ -292,7 +312,7 @@
                         <div class="sub-item">
                             <span style="color:var(--accent); font-weight:bold; width:45px; font-size:1.1rem;">${m.prob}%</span>
                             <span style="flex-grow:1; color:var(--text-dim); font-size:0.85rem;">${m.choice}</span>
-                            <a href="${betUrl}" target="_blank" class="bet-btn" style="padding: 5px 10px;" onclick="event.stopPropagation()">Wanna Bet?</a>
+                            <a href="${betUrl}" target="_blank" class="bet-btn" style="padding: 8px 10px;" onclick="event.stopPropagation()">Wanna Bet?</a>
                         </div>
                     `).join('')}
                 </div>

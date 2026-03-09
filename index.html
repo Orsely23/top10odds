@@ -91,29 +91,71 @@
             text-transform: uppercase; font-size: 0.85rem;
         }
 
-        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; }
-        .main-market { display: flex; align-items: center; padding: 12px; gap: 5px; }
-        .percentage { color: var(--accent); font-size: 1.6rem; font-weight: 800; min-width: 65px; text-align: center; }
-        .text { flex-grow: 1; flex-shrink: 1; padding: 0 5px; font-size: 0.9rem; line-height: 1.2; font-weight: 600; overflow-wrap: break-word; }
-        .choice-label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; font-weight: normal; }
+        /* 2-ROW MOBILE LAYOUT */
+        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 16px; overflow: hidden; }
         
+        .main-market { 
+            display: flex; 
+            flex-direction: column; /* Stacked on mobile */
+            padding: 16px; 
+        }
+
+        .top-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .bottom-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 12px;
+        }
+
+        .percentage { 
+            color: var(--accent); 
+            font-size: 2.2rem; 
+            font-weight: 900; 
+            min-width: 80px; 
+            line-height: 1;
+        }
+
+        .text { 
+            flex-grow: 1; 
+            padding-left: 10px; 
+            font-size: 1.1rem; 
+            line-height: 1.2; 
+            font-weight: 700; 
+        }
+
+        .choice-label { 
+            font-size: 0.85rem; 
+            color: var(--text-dim); 
+            font-weight: normal; 
+        }
+
         .bet-btn { 
-            background: var(--accent); color: #000; padding: 10px 10px; border-radius: 8px; 
-            font-size: 0.65rem; font-weight: 900; text-decoration: none; text-transform: uppercase; 
-            white-space: nowrap; flex-shrink: 0; min-width: 85px; text-align: center;
+            background: var(--accent); color: #000; 
+            padding: 10px 18px; border-radius: 10px; 
+            font-size: 0.8rem; font-weight: 900; 
+            text-decoration: none; text-transform: uppercase; 
+            white-space: nowrap;
         }
         body.bright-mode .bet-btn { color: #fff; }
 
-        .sub-markets { display: none; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); padding: 5px 12px 12px 12px; }
-        .sub-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 5px; }
+        .sub-markets { display: none; background: rgba(0,0,0,0.2); padding: 10px 16px 16px; }
+        .sub-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
 
+        /* DESKTOP REFINEMENT */
         @media (min-width: 600px) {
-            body { padding: 20px; }
-            h1 { font-size: 2.2rem; }
-            .main-market { padding: 20px; gap: 15px; }
-            .percentage { font-size: 2.2rem; min-width: 90px; }
-            .text { font-size: 1.2rem; padding: 0 10px; }
-            .bet-btn { font-size: 0.8rem; padding: 12px 20px; min-width: 120px; }
+            .main-market { flex-direction: row; align-items: center; padding: 20px; }
+            .top-row { margin-bottom: 0; width: auto; flex-grow: 1; }
+            .bottom-row { width: auto; border-top: none; padding-top: 0; margin-left: 20px; }
+            .text { padding-left: 20px; }
         }
 
         #load-more-btn { width: 100%; padding: 18px; background: var(--card); color: var(--accent); border: 2px solid var(--accent); border-radius: 50px; font-weight: bold; cursor: pointer; margin: 20px 0 50px 0; }
@@ -156,7 +198,6 @@
     const itemsPerPage = 10;
     let deferredPrompt;
 
-    // THEME LOGIC
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('theme-toggle');
@@ -170,7 +211,6 @@
         document.getElementById('theme-toggle').innerHTML = "🌙 Dark Mode";
     }
 
-    // PWA INSTALL LOGIC
     const installBanner = document.getElementById('install-banner');
     const installText = document.getElementById('install-text');
 
@@ -199,7 +239,6 @@
         }
     }
 
-    // DATA LOGIC
     async function fetchData() {
         try {
             document.getElementById('status-text').innerText = "SCANNING MARKETS...";
@@ -264,19 +303,24 @@
             const html = `
             <div class="event-group">
                 <div class="main-market">
-                    <div style="display:flex;align-items:center;flex-grow:1;overflow:hidden;" onclick="toggleGroup('${groupId}')">
+                    <div class="top-row" onclick="toggleGroup('${groupId}')">
                         <span class="percentage">${main.prob}%</span>
-                        <div class="text">${group.title}<span class="choice-label">${main.choice}</span></div>
-                        ${hasMore ? `<span style="color:var(--accent); font-weight:bold; margin-right:5px;">+</span>` : ''}
+                        <div class="text">${group.title}</div>
+                        ${hasMore ? `<span style="color:var(--accent); font-weight:bold; font-size:1.4rem; padding:0 10px;">+</span>` : ''}
                     </div>
-                    <a href="${betUrl}" target="_blank" class="bet-btn">Wanna Bet?</a>
+                    <div class="bottom-row">
+                        <span class="choice-label">${main.choice}</span>
+                        <a href="${betUrl}" target="_blank" class="bet-btn">Wanna Bet?</a>
+                    </div>
                 </div>
                 <div class="sub-markets" id="${groupId}">
                     ${group.markets.slice(1).map(m => `
                         <div class="sub-item">
-                            <span style="color:var(--accent); font-weight:bold; width:45px; font-size:1.1rem;">${m.prob}%</span>
-                            <span style="flex-grow:1; color:var(--text-dim); font-size:0.85rem;">${m.choice}</span>
-                            <a href="${betUrl}" target="_blank" class="bet-btn" style="padding: 8px 10px; min-width:85px;">Wanna Bet?</a>
+                            <div style="display:flex; align-items:center;">
+                                <span style="color:var(--accent); font-weight:bold; width:45px; font-size:1.1rem;">${m.prob}%</span>
+                                <span style="color:var(--text-dim); font-size:0.9rem; padding-left:10px;">${m.choice}</span>
+                            </div>
+                            <a href="${betUrl}" target="_blank" class="bet-btn" style="padding: 8px 12px; font-size:0.7rem;">Wanna Bet?</a>
                         </div>
                     `).join('')}
                 </div>
@@ -292,12 +336,9 @@
         el.style.display = (el.style.display === "block") ? "none" : "block";
     };
 
-    // SERVICE WORKER REGISTRATION
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('SW Registered'))
-                .catch(err => console.log('SW Failed', err));
+            navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW Registered'));
         });
     }
 

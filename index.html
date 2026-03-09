@@ -78,6 +78,7 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } 
         }
 
+        /* SEARCH BAR */
         .search-container { position: sticky; top: 10px; z-index: 100; margin: 15px 0 20px 0; }
         #search-input { 
             width: 100%; padding: 14px 22px; background: var(--search-bg); 
@@ -87,9 +88,9 @@
         }
         #search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2); }
 
-        /* BACK TO TOP ARROW */
+        /* SCROLL TO TOP ARROW */
         #back-to-top {
-            position: fixed; bottom: 20px; right: 20px;
+            position: fixed; bottom: 25px; right: 20px;
             background: var(--accent); color: #000;
             width: 45px; height: 45px; border-radius: 50%;
             display: none; align-items: center; justify-content: center;
@@ -97,50 +98,38 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: none;
             transition: 0.3s;
         }
-        #back-to-top:hover { transform: translateY(-5px); }
 
-        /* MOBILE-FIRST 2-ROW CARD */
+        /* CARDS */
         .event-group { 
             background: var(--card); border: 1px solid var(--border); 
             border-radius: 16px; margin-bottom: 12px; overflow: hidden; 
             transition: 0.3s; 
         }
-        .event-group:hover { border-color: var(--accent); }
+        .event-group:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 
-        .main-market { 
-            display: flex; flex-direction: column; padding: 15px; cursor: pointer;
-        }
+        .main-market { display: flex; align-items: center; padding: 12px; gap: 5px; cursor: pointer; }
+        .percentage { color: var(--accent); font-size: 1.6rem; font-weight: 800; min-width: 65px; text-align: center; }
+        .text { flex-grow: 1; flex-shrink: 1; padding: 0 5px; font-size: 0.95rem; line-height: 1.2; font-weight: 600; overflow-wrap: break-word; }
+        .choice-label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; font-weight: normal; }
         
-        .market-info { display: flex; align-items: center; width: 100%; margin-bottom: 10px; }
-        
-        .percentage { color: var(--accent); font-size: 1.8rem; font-weight: 800; min-width: 70px; text-align: center; }
-        .text { flex-grow: 1; padding: 0 10px; font-size: 1rem; line-height: 1.3; font-weight: 600; }
-        
-        .action-row { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-left: 70px; }
-        .choice-label { font-size: 0.8rem; color: var(--text-dim); font-weight: normal; }
-
         .bet-btn { 
-            background: var(--accent); color: #000; padding: 8px 16px; border-radius: 8px; 
-            font-size: 0.75rem; font-weight: 800; text-decoration: none; 
-            white-space: nowrap; transition: 0.2s;
+            background: var(--accent); color: #000; padding: 8px 12px; border-radius: 8px; 
+            font-size: 0.7rem; font-weight: 800; text-decoration: none; 
+            white-space: nowrap; flex-shrink: 0; text-align: center; transition: 0.2s;
         }
+        .bet-btn:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 0 10px rgba(0, 255, 136, 0.4); }
         body.bright-mode .bet-btn { color: #fff; }
 
-        .sub-markets { display: none; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); padding: 5px 15px 15px 15px; }
-        .sub-item { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .sub-info { display: flex; align-items: center; margin-bottom: 8px; }
+        .sub-markets { display: none; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); padding: 5px 12px 12px 12px; }
+        .sub-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 5px; }
 
-        /* DESKTOP REVERT TO 1-ROW */
         @media (min-width: 600px) {
             body { padding: 20px; }
             h1 { font-size: 2.2rem; }
-            .main-market { flex-direction: row; align-items: center; justify-content: space-between; }
-            .market-info { margin-bottom: 0; flex: 1; }
-            .action-row { width: auto; padding-left: 20px; }
+            .main-market { padding: 20px; gap: 15px; }
             .percentage { font-size: 2.2rem; min-width: 90px; }
-            .text { font-size: 1.2rem; }
-            .sub-item { flex-direction: row; align-items: center; justify-content: space-between; }
-            .sub-info { margin-bottom: 0; }
+            .text { font-size: 1.2rem; padding: 0 20px; }
+            .bet-btn { font-size: 0.8rem; padding: 10px 18px; }
         }
 
         #load-more-btn { 
@@ -148,6 +137,8 @@
             border: 2px solid var(--accent); border-radius: 50px; font-weight: bold; 
             cursor: pointer; margin: 20px 0 50px 0; transition: 0.3s;
         }
+        #load-more-btn:hover { background: var(--accent); color: #000; }
+
         footer { text-align: center; padding: 40px 10px; color: var(--text-dim); font-size: 0.75rem; border-top: 1px solid var(--border); }
         .footer-links a { color: var(--accent); text-decoration: none; font-weight: bold; }
     </style>
@@ -184,7 +175,7 @@
     let currentIndex = 0; 
     const itemsPerPage = 10;
 
-    // Theme logic
+    // THEME LOGIC
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('theme-toggle');
@@ -198,7 +189,7 @@
         document.getElementById('theme-toggle').innerHTML = "🌙 Dark Mode";
     }
 
-    // Scroll to top logic
+    // SCROLL TO TOP LOGIC
     const topBtn = document.getElementById('back-to-top');
     window.onscroll = function() {
         if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
@@ -211,6 +202,7 @@
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
+    // DATA LOGIC
     async function fetchData() {
         try {
             document.getElementById('status-text').innerText = "SCANNING MARKETS...";
@@ -275,23 +267,18 @@
             const html = `
             <div class="event-group">
                 <div class="main-market" onclick="toggleGroup('${groupId}')">
-                    <div class="market-info">
+                    <div style="display:flex;align-items:center;flex-grow:1;overflow:hidden;">
                         <span class="percentage">${main.prob}%</span>
-                        <div class="text">${group.title}</div>
+                        <div class="text">${group.title}<span class="choice-label">${main.choice}</span></div>
                         ${hasMore ? `<span style="color:var(--accent); font-weight:bold; margin-right:5px;">+</span>` : ''}
                     </div>
-                    <div class="action-row">
-                        <span class="choice-label">${main.choice}</span>
-                        <a href="${betUrl}" target="_blank" class="bet-btn" onclick="event.stopPropagation()">Wanna Bet?</a>
-                    </div>
+                    <a href="${betUrl}" target="_blank" class="bet-btn" onclick="event.stopPropagation()">Wanna Bet?</a>
                 </div>
                 <div class="sub-markets" id="${groupId}">
                     ${group.markets.slice(1).map(m => `
                         <div class="sub-item">
-                            <div class="sub-info">
-                                <span style="color:var(--accent); font-weight:bold; width:45px; font-size:1.1rem;">${m.prob}%</span>
-                                <span style="flex-grow:1; color:var(--text-dim); font-size:0.85rem; padding-left:10px;">${m.choice}</span>
-                            </div>
+                            <span style="color:var(--accent); font-weight:bold; width:45px; font-size:1.1rem;">${m.prob}%</span>
+                            <span style="flex-grow:1; color:var(--text-dim); font-size:0.85rem;">${m.choice}</span>
                             <a href="${betUrl}" target="_blank" class="bet-btn" style="padding: 5px 10px;" onclick="event.stopPropagation()">Wanna Bet?</a>
                         </div>
                     `).join('')}
@@ -310,7 +297,7 @@
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js');
+            navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW Registered'));
         });
     }
 

@@ -10,7 +10,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OddsPulse | Live Markets</title>
+    <title>OddsPulse | Real-Time Intelligence</title>
     <style>
         :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text-main: #f0f6fc; --text-dim: #8b949e; --accent: #00ff88; }
         body.bright-mode { --bg: #ffffff; --card: #f6f8fa; --border: #d0d7de; --text-main: #1f2328; --text-dim: #57606a; --accent: #00a35c; }
@@ -18,43 +18,42 @@
         body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
         .container { max-width: 800px; margin: 0 auto; }
         header { text-align: center; padding: 20px 0; }
-        h1 { font-size: 1.6rem; text-transform: uppercase; margin: 0; cursor: pointer; }
-        #status { font-size: 0.75rem; color: var(--accent); font-weight: bold; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { font-size: 1.8rem; text-transform: uppercase; margin: 0; cursor: pointer; letter-spacing: -1px; }
+        #status { font-size: 0.75rem; color: var(--accent); font-weight: bold; margin-top: 5px; text-transform: uppercase; }
         
-        #search-input { width: 100%; padding: 14px 22px; background: var(--card); border: 2px solid var(--border); border-radius: 50px; color: var(--text-main); font-size: 1rem; margin: 15px 0; outline: none; }
+        #search-input { width: 100%; padding: 16px 22px; background: var(--card); border: 2px solid var(--border); border-radius: 50px; color: var(--text-main); font-size: 1rem; margin: 15px 0; outline: none; }
         
         .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; transition: 0.2s; }
         .event-group:hover { border-color: var(--accent); }
-        .main-market { display: flex; align-items: center; padding: 12px; gap: 8px; cursor: pointer; }
+        .main-market { display: flex; align-items: center; padding: 14px; gap: 10px; cursor: pointer; }
         
-        .perc-box { display: flex; align-items: center; justify-content: flex-end; min-width: 105px; flex-shrink: 0; }
-        
+        .perc-box { display: flex; align-items: center; justify-content: flex-end; min-width: 115px; flex-shrink: 0; }
         /* ENLARGED FONT: Percentage */
-        .percentage { color: var(--accent); font-size: 2.1rem; font-weight: 800; }
-        .trending-icon { width: 22px; height: 22px; stroke: var(--accent); fill: none; stroke-width: 2.5; margin-right: 6px; }
+        .percentage { color: var(--accent); font-size: 2.2rem; font-weight: 800; line-height: 1; }
+        .trending-icon { width: 22px; height: 22px; stroke: var(--accent); fill: none; stroke-width: 3; margin-right: 8px; }
 
-        .text { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 600; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .choice-label { display: block; font-size: 0.75rem; color: var(--text-dim); font-weight: 400; }
+        .text { flex: 1; min-width: 0; font-size: 1.05rem; font-weight: 600; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .choice-label { display: block; font-size: 0.8rem; color: var(--text-dim); font-weight: 400; margin-top: 3px; }
 
-        .btn-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-        
+        .btn-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         /* ENLARGED FONT: Volume Pill */
-        .vol-pill { background: rgba(139,148,158,0.1); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 11px; border-radius: 6px; font-size: 0.8rem; font-weight: 800; }
+        .vol-pill { background: rgba(139,148,158,0.15); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 800; }
         
         /* ENLARGED FONT: Wanna Bet Button (White Text) */
-        .bet-btn { background: var(--accent); color: #ffffff !important; padding: 11px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; text-decoration: none; }
+        .bet-btn { background: var(--accent); color: #ffffff !important; padding: 12px 18px; border-radius: 8px; font-size: 0.95rem; font-weight: 900; text-decoration: none; text-align: center; display: inline-block; }
 
-        .sub-markets { display: none; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); padding: 10px; }
-        .sub-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .sub-markets { display: none; background: rgba(0,0,0,0.2); border-top: 1px solid var(--border); padding: 12px; }
+        .sub-item { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+        .sub-item:last-child { border-bottom: none; }
         
-        #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: #000; width: 45px; height: 45px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; border: none; z-index: 1000; }
+        #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: #000; width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: none; z-index: 1000; }
 
         @media (max-width: 600px) {
-            .percentage { font-size: 1.8rem; }
-            .perc-box { min-width: 90px; }
-            .text { font-size: 0.95rem; white-space: normal; }
-            .vol-pill { padding: 7px 10px; font-size: 0.7rem; }
-            .bet-btn { padding: 10px 14px; font-size: 0.8rem; }
+            .percentage { font-size: 1.9rem; }
+            .perc-box { min-width: 95px; }
+            .text { font-size: 1rem; }
+            .vol-pill { padding: 6px 10px; font-size: 0.75rem; }
+            .bet-btn { padding: 10px 14px; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -62,13 +61,13 @@
 
 <div class="container">
     <header>
-        <h1 onclick="location.reload()">OddsPulse Live</h1>
+        <h1 onclick="location.reload()">OddsPulse</h1>
         <div id="status">Syncing Pulse...</div>
     </header>
 
-    <input type="text" id="search-input" placeholder="Search markets..." onkeyup="handleSearch()">
+    <input type="text" id="search-input" placeholder="Search Markets..." onkeyup="handleSearch()">
     <div id="odds-list"></div>
-    <button id="load-more-btn" style="width:100%; padding:18px; background:var(--card); color:var(--accent); border:1px solid var(--accent); border-radius:50px; margin:30px 0; cursor:pointer; display:none;" onclick="loadNext()">Load More</button>
+    <button id="load-more-btn" style="width:100%; padding:18px; background:var(--card); color:var(--accent); border:1px solid var(--accent); border-radius:50px; margin:30px 0; cursor:pointer; display:none; font-weight:bold;" onclick="loadNext()">Load More</button>
 </div>
 
 <button id="back-to-top" onclick="scrollToTop()">↑</button>
@@ -78,67 +77,58 @@
     let filteredData = [];   
     let currentIndex = 0; 
 
-    // THE BRAIN: Aggressive fetch with fallback paths
     async function init() {
-        const paths = ['data.json', './data.json', '../data.json'];
-        let data = null;
-
-        for (let path of paths) {
-            try {
-                const response = await fetch(path + '?nocache=' + new Date().getTime());
-                if (response.ok) {
-                    data = await response.json();
-                    break; 
-                }
-            } catch (e) {}
-        }
-
-        if (!data) {
-            document.getElementById('status').innerText = "Sync Offline - Check data.json";
-            return;
-        }
-
-        const groups = {};
-        data.forEach(e => {
-            if (!e.markets || e.markets.length === 0) return;
-            const title = e.title.replace(/by ___ \?/g, "").trim();
-            e.markets.forEach(m => {
-                let p = 0;
-                try { p = JSON.parse(m.outcomePrices)[0]; } catch(err) { p = m.price || 0; }
-                const prob = Math.round(parseFloat(p) * 100);
-                if (prob < 5 || prob > 95) return;
+        try {
+            // Fetching with cache-busting and error checking
+            const response = await fetch('data.json?v=' + Date.now(), { cache: "no-store" });
+            if (!response.ok) throw new Error("HTTP Status " + response.status);
+            const rawData = await response.json();
+            
+            const groups = {};
+            rawData.forEach(e => {
+                if (!e.markets || e.markets.length === 0) return;
+                const title = e.title.replace(/by ___ \?/g, "").trim();
                 
-                if (!groups[title]) {
-                    let cat = 'gen';
-                    const t = title.toLowerCase();
-                    if (t.includes('trump') || t.includes('election') || t.includes('senate') || t.includes('biden')) cat = 'us';
-                    else if (t.includes('israel') || t.includes('ukraine') || t.includes('un ') || t.includes('china')) cat = 'world';
-                    else if (t.includes('nfl') || t.includes('nba') || t.includes('soccer')) cat = 'sports';
+                let cat = 'gen';
+                const t = title.toLowerCase();
+                if (t.includes('trump') || t.includes('election') || t.includes('biden') || t.includes('senate')) cat = 'us';
+                else if (t.includes('israel') || t.includes('ukraine') || t.includes('china') || t.includes('parliament') || t.includes('un ')) cat = 'world';
+                else if (t.includes('nfl') || t.includes('nba') || t.includes('soccer') || t.includes('fifa')) cat = 'sports';
 
-                    groups[title] = { title, slug: e.slug, vol: parseFloat(e.volume || 0), vol24: parseFloat(e.volume24hr || 0), cat, markets: [] };
-                }
-                groups[title].markets.push({ prob, choice: m.groupItemTitle || "Yes" });
+                e.markets.forEach(m => {
+                    let p = 0;
+                    try { p = JSON.parse(m.outcomePrices)[0]; } catch(err) { p = m.price || 0; }
+                    const prob = Math.round(parseFloat(p) * 100);
+                    if (prob < 5 || prob > 95) return;
+                    
+                    if (!groups[title]) {
+                        groups[title] = { title, slug: e.slug, vol: parseFloat(e.volume || 0), vol24: parseFloat(e.volume24hr || 0), cat, markets: [] };
+                    }
+                    groups[title].markets.push({ prob, choice: m.groupItemTitle || "Yes" });
+                });
             });
-        });
 
-        // Diversity Logic: 4 Politics Max (Min 2 US, Min 2 World), 3 Sports Max
-        const sorted = Object.values(groups).sort((a,b) => b.vol24 - a.vol24);
-        let counts = { us: 0, world: 0, sports: 0 };
-        let final = [];
-        
-        sorted.forEach(m => {
-            const polTotal = counts.us + counts.world;
-            if (m.cat === 'us' && counts.us < 2 && polTotal < 4) { final.push(m); counts.us++; }
-            else if (m.cat === 'world' && counts.world < 2 && polTotal < 4) { final.push(m); counts.world++; }
-            else if (m.cat === 'sports' && counts.sports < 3) { final.push(m); counts.sports++; }
-            else if (m.cat === 'gen' || final.length < 10) {
-                if (!final.find(x => x.title === m.title)) final.push(m);
-            }
-        });
+            const sorted = Object.values(groups).sort((a,b) => b.vol24 - a.vol24);
+            let counts = { us: 0, world: 0, sports: 0 };
+            let final = [];
+            
+            sorted.forEach(m => {
+                const polTotal = counts.us + counts.world;
+                if (m.cat === 'us' && counts.us < 2 && polTotal < 4) { final.push(m); counts.us++; }
+                else if (m.cat === 'world' && counts.world < 2 && polTotal < 4) { final.push(m); counts.world++; }
+                else if (m.cat === 'sports' && counts.sports < 3) { final.push(m); counts.sports++; }
+                else if (m.cat === 'gen' || final.length < 10) {
+                    if (!final.find(x => x.title === m.title)) final.push(m);
+                }
+            });
 
-        allGroupedData = final.slice(0, 50);
-        document.getElementById('status').innerText = "System Live";
-        render();
+            allGroupedData = final.slice(0, 50);
+            document.getElementById('status').innerText = "System Live";
+            render();
+        } catch (e) {
+            console.error("Pulse Error:", e);
+            document.getElementById('status').innerText = "Sync Offline - 404/Network Error";
+        }
     }
 
     function formatV(n) { return n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'k' : n; }
@@ -150,7 +140,7 @@
             g.markets.sort((a,b) => b.prob - a.prob);
             const main = g.markets[0];
             const id = `g-${currentIndex + i}`;
-            const trending = (currentIndex + i < 3); // Top 3 get the icon
+            const trending = (currentIndex + i < 3);
 
             list.insertAdjacentHTML('beforeend', `
             <div class="event-group">
@@ -168,9 +158,9 @@
                 <div class="sub-markets" id="${id}">
                     ${g.markets.slice(1).map(m => `
                         <div class="sub-item">
-                            <span style="color:var(--accent); font-weight:800; width:55px; text-align:right; font-size:1.1rem;">${m.prob}%</span>
-                            <span style="flex:1; padding-left:15px; color:var(--text-dim); font-size:0.9rem;">${m.choice}</span>
-                            <a href="https://polymarket.com/event/${g.slug}" target="_blank" class="bet-btn" style="padding:6px 10px;">Wanna Bet?</a>
+                            <span style="color:var(--accent); font-weight:800; width:60px; text-align:right; font-size:1.3rem;">${m.prob}%</span>
+                            <span style="flex:1; padding-left:15px; color:var(--text-dim); font-size:1.1rem;">${m.choice}</span>
+                            <a href="https://polymarket.com/event/${g.slug}" target="_blank" class="bet-btn" style="padding:10px 14px; font-size:0.85rem;">Wanna Bet?</a>
                         </div>
                     `).join('')}
                 </div>

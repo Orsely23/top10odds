@@ -7,33 +7,34 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-C7D4T0JH70');
-  <script>
+<script>
     async function init() {
+        const status = document.getElementById('status');
         try {
-            // Aggressive fetch with cache-busting
+            // Aggressive cache-busting fetch
             const response = await fetch('data.json?v=' + Date.now(), { cache: "no-store" });
-            if (!response.ok) throw new Error("404");
-            const rawData = await response.json();
+            if (!response.ok) throw new Error("DATA_NOT_FOUND");
             
-            if (!rawData || rawData.length === 0) throw new Error("Empty Data");
+            const rawData = await response.json();
+            if (!rawData || rawData.length === 0) throw new Error("DATA_EMPTY");
 
             const groups = {};
             rawData.forEach(e => {
                 if (!e.markets || e.markets.length === 0) return;
                 const title = e.title.replace(/by ___ \?/g, "").trim();
                 
-                // Categorization Logic
+                // Categorization
                 let cat = 'gen';
                 const t = title.toLowerCase();
                 if (t.includes('trump') || t.includes('election') || t.includes('biden') || t.includes('senate')) cat = 'us';
-                else if (t.includes('israel') || t.includes('ukraine') || t.includes('china') || t.includes('parliament') || t.includes('un ')) cat = 'world';
+                else if (t.includes('israel') || t.includes('ukraine') || t.includes('china') || t.includes('world') || t.includes('parliament')) cat = 'world';
                 else if (t.includes('nfl') || t.includes('nba') || t.includes('soccer') || t.includes('fifa')) cat = 'sports';
 
                 e.markets.forEach(m => {
                     let p = 0;
                     try { 
-                        let prices = m.outcomePrices;
-                        if (typeof prices === 'string') prices = JSON.parse(prices);
+                        // Gamma API sometimes returns outcomePrices as a string
+                        let prices = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
                         p = Array.isArray(prices) ? prices[0] : (m.price || 0);
                     } catch(err) { p = 0; }
                     
@@ -47,33 +48,33 @@
                 });
             });
 
-            // Brain: Sort by Buzz (24h Volume)
+            // Sorting by 24h Momentum
             const sorted = Object.values(groups).sort((a,b) => b.vol24 - a.vol24);
             
-            // Brain: Slots (Politics: Max 4 total, Min 2 US, Min 2 World. Sports: Max 3)
+            // Applying your 4-Politics and 3-Sports Constraints
             let counts = { us: 0, world: 0, sports: 0 };
-            let finalSelection = [];
+            let final = [];
             
             sorted.forEach(m => {
                 const polTotal = counts.us + counts.world;
-                if (m.cat === 'us' && counts.us < 2 && polTotal < 4) { finalSelection.push(m); counts.us++; }
-                else if (m.cat === 'world' && counts.world < 2 && polTotal < 4) { finalSelection.push(m); counts.world++; }
-                else if (m.cat === 'sports' && counts.sports < 3) { finalSelection.push(m); counts.sports++; }
-                else if (m.cat === 'gen' || finalSelection.length < 10) {
-                    if (!finalSelection.find(x => x.title === m.title)) finalSelection.push(m);
+                if (m.cat === 'us' && counts.us < 2 && polTotal < 4) { final.push(m); counts.us++; }
+                else if (m.cat === 'world' && counts.world < 2 && polTotal < 4) { final.push(m); counts.world++; }
+                else if (m.cat === 'sports' && counts.sports < 3) { final.push(m); counts.sports++; }
+                else if (m.cat === 'gen' || final.length < 10) {
+                    if (!final.find(x => x.title === m.title)) final.push(m);
                 }
             });
 
-            allGroupedData = finalSelection.slice(0, 50);
-            document.getElementById('status').innerText = "System Live";
+            allGroupedData = final.slice(0, 50);
+            status.innerText = "System Live";
             render();
         } catch (e) {
-            document.getElementById('status').innerText = "Sync Offline - 404/Empty File";
+            status.innerText = "Sync Error: Check Actions Tab";
             console.error(e);
         }
     }
     init();
-</script>
+</script> 
     let allGroupedData = []; 
     let filteredData = [];   
     let currentIndex = 0; 
@@ -181,4 +182,5 @@
 </script>
 </body>
 </html>
+
 

@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch
-        run: curl -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" "https://gamma-api.polymarket.com/events?active=true&closed=false&limit=500" -o data.json
+        run: curl -v -L -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" -H "Accept: application/json" "https://gamma-api.polymarket.com/events?active=true&closed=false&limit=500" -o data.json
       - name: Save
         run: |
           git config user.name "github-actions[bot]"

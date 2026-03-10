@@ -8,54 +8,51 @@
       gtag('js', new Date());
       gtag('config', 'G-C7D4T0JH70');
     </script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OddsPulse | Global Market Intelligence</title>
-    
+    <title>OddsPulse | Real-Time Market Momentum</title>
     <style>
-        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text-main: #f0f6fc; --text-dim: #8b949e; --accent: #00ff88; --search-bg: #161b22; }
-        body.bright-mode { --bg: #ffffff; --card: #f6f8fa; --border: #d0d7de; --text-main: #1f2328; --text-dim: #57606a; --accent: #00a35c; --search-bg: #ffffff; }
+        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text-main: #f0f6fc; --text-dim: #8b949e; --accent: #00ff88; }
+        body.bright-mode { --bg: #ffffff; --card: #f6f8fa; --border: #d0d7de; --text-main: #1f2328; --text-dim: #57606a; --accent: #00a35c; }
         * { box-sizing: border-box; }
-        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; scroll-behavior: smooth; transition: 0.3s; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; transition: 0.3s; }
         .container { max-width: 800px; margin: 0 auto; }
-        header { text-align: center; padding: 25px 0 10px; position: relative; }
-        #theme-toggle { position: absolute; top: 0; right: 0; background: var(--card); border: 1px solid var(--border); color: var(--text-main); padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
-        h1 { font-size: 1.6rem; margin: 15px 0 5px; letter-spacing: -0.5px; text-transform: uppercase; }
+        header { text-align: center; padding: 20px 0; position: relative; }
+        #theme-toggle { position: absolute; top: 0; right: 0; background: var(--card); border: 1px solid var(--border); color: var(--text-main); padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; }
+        h1 { font-size: 1.6rem; text-transform: uppercase; margin-bottom: 5px; }
         #status { font-size: 0.75rem; color: var(--accent); font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .pulse-dot { width: 7px; height: 7px; background-color: var(--accent); border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); } 100% { transform: scale(0.95); } }
+        @keyframes pulse { 0% { transform: scale(0.9); } 70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(0,255,136,0); } 100% { transform: scale(0.9); } }
         
-        .search-container { position: sticky; top: 10px; z-index: 100; margin: 15px 0 20px 0; }
-        #search-input { width: 100%; padding: 14px 22px; background: var(--search-bg); border: 2px solid var(--border); border-radius: 50px; color: var(--text-main); font-size: 1rem; outline: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        #search-input { width: 100%; padding: 14px 22px; background: var(--card); border: 2px solid var(--border); border-radius: 50px; color: var(--text-main); font-size: 1rem; margin-bottom: 20px; outline: none; }
+        
+        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; transition: 0.2s; }
+        .event-group:hover { border-color: var(--accent); }
+        
+        .main-market { display: flex; align-items: center; padding: 12px; gap: 10px; cursor: pointer; flex-wrap: nowrap; }
+        
+        .perc-box { display: flex; align-items: center; justify-content: flex-end; min-width: 100px; }
+        .percentage { color: var(--accent); font-size: 1.8rem; font-weight: 800; line-height: 1; }
+        .trending-icon { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 2.5; margin-right: 6px; }
 
-        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; transition: 0.3s; }
-        .event-group:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .main-market { display: flex; align-items: center; padding: 12px; gap: 5px; cursor: pointer; }
-        
-        .percentage-container { display: flex; align-items: center; justify-content: flex-end; min-width: 100px; }
-        .momentum-icon { width: 20px; height: 20px; fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; margin-right: 8px; animation: iconPulse 2s infinite; }
-        @keyframes iconPulse { 0% { opacity: 0.5; } 70% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        /* ENLARGED FONT: Percentage */
-        .percentage { color: var(--accent); font-size: 1.8rem; font-weight: 800; line-height: 1; text-align: right; }
-        .text { flex-grow: 1; flex-shrink: 1; padding: 0 5px; font-size: 0.95rem; line-height: 1.2; font-weight: 600; overflow-wrap: break-word; }
-        .choice-label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; font-weight: normal; }
+        .text { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 600; line-height: 1.2; padding-right: 10px; }
+        .choice-label { display: block; font-size: 0.75rem; color: var(--text-dim); font-weight: 400; margin-top: 2px; }
 
-        .btn-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        
-        /* ENLARGED FONT: Volume Pill */
-        .vol-pill { background: rgba(139, 148, 158, 0.1); border: 1px solid var(--border); color: var(--text-dim); padding: 7px 11px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; white-space: nowrap; }
-        
-        /* ENLARGED FONT: Wanna Bet Button */
-        .bet-btn { background: var(--accent); color: #ffffff !important; padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; text-decoration: none; white-space: nowrap; text-align: center; }
-        .bet-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .btn-group { display: flex; align-items: center; gap: 6px; }
+        .vol-pill { background: rgba(139,148,158,0.1); border: 1px solid var(--border); color: var(--text-dim); padding: 7px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; }
+        .bet-btn { background: var(--accent); color: #ffffff !important; padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; text-decoration: none; white-space: nowrap; }
 
-        .sub-markets { display: none; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); padding: 5px 12px 12px 12px; }
-        .sub-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 5px; }
+        .sub-markets { display: none; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); padding: 10px; }
+        .sub-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
         
-        #back-to-top { position: fixed; bottom: 25px; right: 20px; background: var(--accent); color: #000; width: 45px; height: 45px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; z-index: 1000; border: none; }
-        @media (min-width: 600px) { h1 { font-size: 2.2rem; } .main-market { padding: 20px; } .percentage { font-size: 2.4rem; } .text { font-size: 1.2rem; padding: 0 20px; } .bet-btn { font-size: 0.9rem; } }
+        #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: #000; width: 45px; height: 45px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; border: none; }
+
+        @media (max-width: 600px) {
+            .main-market { flex-wrap: wrap; }
+            .perc-box { min-width: 80px; }
+            .text { flex: 1 1 100%; order: -1; margin-bottom: 8px; padding-right: 0; font-size: 1rem; }
+            .btn-group { width: 100%; justify-content: space-between; }
+        }
     </style>
 </head>
 <body>
@@ -64,19 +61,12 @@
     <header>
         <button id="theme-toggle" onclick="toggleTheme()">☀️ Bright Mode</button>
         <h1>OddsPulse Live</h1>
-        <div id="status"><span class="pulse-dot"></span> <span id="status-text">MOMENTUM SYNCED</span></div>
+        <div id="status"><span class="pulse-dot"></span> <span id="status-text">SYNCING PULSE...</span></div>
     </header>
 
-    <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search live momentum..." onkeyup="handleSearch()">
-    </div>
-
+    <input type="text" id="search-input" placeholder="Search markets..." onkeyup="handleSearch()">
     <div id="odds-list"></div>
-    <button id="load-more-btn" style="width:100%; padding:18px; background:var(--card); color:var(--accent); border:2px solid var(--accent); border-radius:50px; font-weight:bold; cursor:pointer; margin:20px 0 50px 0;" onclick="loadNext()">Load More Results</button>
-
-    <footer style="text-align:center; padding:40px 10px; color:var(--text-dim); font-size:0.75rem; border-top:1px solid var(--border);">
-        &copy; 2026 OddsPulse &bull; Regional Constraints Active &bull; Buzz Priority
-    </footer>
+    <button id="load-more-btn" style="width:100%; padding:15px; background:var(--card); color:var(--accent); border:1px solid var(--accent); border-radius:50px; margin:20px 0 50px; cursor:pointer;" onclick="loadNext()">Load More</button>
 </div>
 
 <button id="back-to-top" onclick="scrollToTop()">↑</button>
@@ -86,134 +76,109 @@
     let filteredData = [];   
     let currentIndex = 0; 
     const itemsPerPage = 10;
-    let buzzThreshold = 0;
 
     function toggleTheme() {
-        const body = document.body;
-        body.classList.toggle('bright-mode');
-        localStorage.setItem('preferredTheme', body.classList.contains('bright-mode') ? 'bright' : 'dark');
+        document.body.classList.toggle('bright-mode');
+        localStorage.setItem('theme', document.body.classList.contains('bright-mode') ? 'bright' : 'dark');
     }
-    if (localStorage.getItem('preferredTheme') === 'bright') document.body.classList.add('bright-mode');
+    if (localStorage.getItem('theme') === 'bright') document.body.classList.add('bright-mode');
 
-    const topBtn = document.getElementById('back-to-top');
-    window.onscroll = () => { topBtn.style.display = (window.scrollY > 300) ? "flex" : "none"; };
+    window.onscroll = () => document.getElementById('back-to-top').style.display = (window.scrollY > 300) ? "flex" : "none";
     function scrollToTop() { window.scrollTo({top: 0, behavior: 'smooth'}); }
 
-    function getCategory(title) {
-        const t = title.toLowerCase();
-        if (t.includes('election') || t.includes('trump') || t.includes('biden') || t.includes('senate') || t.includes('governor') || t.includes('us presidential')) return 'us-politics';
-        if (t.includes('israel') || t.includes('ukraine') || t.includes('china') || t.includes('parliament') || t.includes('europe') || t.includes('war') || t.includes('un ')) return 'world-politics';
-        if (t.includes('nba') || t.includes('nfl') || t.includes('soccer') || t.includes('bowl') || t.includes('fifa')) return 'sports';
+    function getCat(t) {
+        t = t.toLowerCase();
+        if (t.includes('trump') || t.includes('biden') || t.includes('election') || t.includes('senate')) return 'us-politics';
+        if (t.includes('ukraine') || t.includes('israel') || t.includes('china') || t.includes('un ')) return 'world-politics';
+        if (t.includes('nfl') || t.includes('nba') || t.includes('soccer') || t.includes('bowl')) return 'sports';
         return 'general';
     }
 
     async function fetchData() {
         try {
-            const response = await fetch('./data.json?v=' + Date.now());
-            const rawData = await response.json();
-            const now = Date.now();
-            const history = JSON.parse(localStorage.getItem('volumeHistory') || '{}');
-            const fourHoursAgo = now - (4 * 60 * 60 * 1000);
+            const res = await fetch('./data.json?v=' + Date.now());
+            const data = await res.json();
             const groups = {};
             
-            rawData.forEach(event => {
-                if (!event.markets) return;
-                const title = event.title.replace(/by ___ \?/g, "").trim();
-                const curVol = parseFloat(event.volume || 0);
-                let momentum = (parseFloat(event.volume24hr || 0)) / 6;
-                if (history[title]) {
-                    const past = history[title].filter(s => s.ts > fourHoursAgo);
-                    if (past.length > 0) momentum = curVol - past[0].vol;
-                }
-                if (!history[title]) history[title] = [];
-                history[title].push({ ts: now, vol: curVol });
-                history[title] = history[title].filter(s => s.ts > now - (6 * 60 * 60 * 1000));
-
-                event.markets.forEach(market => {
+            data.forEach(e => {
+                if (!e.markets) return;
+                const title = e.title.replace(/by ___ \?/g, "").trim();
+                const vol = parseFloat(e.volume || 0);
+                const vol24 = parseFloat(e.volume24hr || 0);
+                
+                e.markets.forEach(m => {
                     let p = 0;
-                    try { p = JSON.parse(market.outcomePrices)[0]; } catch(e) { p = market.price || 0; }
+                    try { p = JSON.parse(m.outcomePrices)[0]; } catch(err) { p = m.price || 0; }
                     const prob = Math.round(parseFloat(p) * 100);
                     if (prob < 5 || prob > 95) return;
-                    if (!groups[title]) {
-                        groups[title] = { title, slug: event.slug, buzz: momentum, volume: curVol, category: getCategory(title), markets: [] };
-                    }
-                    groups[title].markets.push({ prob, choice: market.groupItemTitle || "Yes" });
+                    if (!groups[title]) groups[title] = { title, slug: e.slug, vol, vol24, cat: getCat(title), markets: [] };
+                    groups[title].markets.push({ prob, choice: m.groupItemTitle || "Yes" });
                 });
             });
 
-            localStorage.setItem('volumeHistory', JSON.stringify(history));
-
-            let sortedByBuzz = Object.values(groups).sort((a,b) => b.buzz - a.buzz);
-            if(sortedByBuzz.length > 0) buzzThreshold = sortedByBuzz[Math.floor(sortedByBuzz.length * 0.25)].buzz;
-
+            const sorted = Object.values(groups).sort((a,b) => b.vol24 - a.vol24);
             let counts = { us: 0, world: 0, sports: 0 };
-            let finalSelection = [];
+            let final = [];
 
-            sortedByBuzz.forEach(m => {
-                const totalPol = counts.us + counts.world;
-                if (m.category === 'us-politics' && counts.us < 2 && totalPol < 4) { finalSelection.push(m); counts.us++; }
-                else if (m.category === 'world-politics' && counts.world < 2 && totalPol < 4) { finalSelection.push(m); counts.world++; }
-                else if (m.category === 'sports' && counts.sports < 3) { finalSelection.push(m); counts.sports++; }
-                else if (m.category === 'general') { finalSelection.push(m); }
+            sorted.forEach(m => {
+                const polTotal = counts.us + counts.world;
+                if (m.cat === 'us-politics' && counts.us < 2 && polTotal < 4) { final.push(m); counts.us++; }
+                else if (m.cat === 'world-politics' && counts.world < 2 && polTotal < 4) { final.push(m); counts.world++; }
+                else if (m.cat === 'sports' && counts.sports < 3) { finalSelection = final.push(m); counts.sports++; }
+                else if (m.cat === 'general') final.push(m);
             });
 
-            allGroupedData = finalSelection;
+            allGroupedData = final;
+            document.getElementById('status-text').innerText = "SYSTEM LIVE";
             return true;
         } catch (e) { return false; }
     }
 
-    function renderInitial() { filteredData = [...allGroupedData]; document.getElementById('odds-list').innerHTML = ""; currentIndex = 0; loadNext(); }
-    function handleSearch() { const q = document.getElementById('search-input').value.toLowerCase(); filteredData = allGroupedData.filter(g => g.title.toLowerCase().includes(q)); document.getElementById('odds-list').innerHTML = ""; currentIndex = 0; loadNext(); }
-
-    function formatVol(num) {
-        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-        return num;
-    }
+    function formatV(n) { return n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'k' : n; }
 
     function loadNext() {
         const list = document.getElementById('odds-list');
-        const nextBatch = filteredData.slice(currentIndex, currentIndex + itemsPerPage);
-        nextBatch.forEach((group, idx) => {
-            group.markets.sort((a, b) => b.prob - a.prob);
-            const main = group.markets[0];
-            const hasMore = group.markets.length > 1;
-            const groupId = `group-${currentIndex + idx}`;
-            const isTrending = group.buzz >= buzzThreshold && group.buzz > 0;
-            
+        const batch = filteredData.slice(currentIndex, currentIndex + itemsPerPage);
+        batch.forEach((g, i) => {
+            g.markets.sort((a,b) => b.prob - a.prob);
+            const main = g.markets[0];
+            const id = `g-${currentIndex + i}`;
+            // Trend Icon only for top 3 hottest markets
+            const trending = (currentIndex + i < 3); 
+
             list.insertAdjacentHTML('beforeend', `
             <div class="event-group">
-                <div class="main-market" onclick="toggleGroup('${groupId}')">
-                    <div style="display:flex;align-items:center;flex-grow:1;overflow:hidden;">
-                        <div class="percentage-container">
-                            ${isTrending ? '<svg class="momentum-icon" viewBox="0 0 24 24"><path d="M22 7l-9.5 9.5-6-6L2 15M16 7h6v6"/></svg>' : ''}
-                            <span class="percentage">${main.prob}%</span>
-                        </div>
-                        <div class="text">${group.title}<span class="choice-label">${main.choice}</span></div>
-                        ${hasMore ? `<span style="color:var(--accent); font-weight:bold; margin-right:10px;">+</span>` : ''}
+                <div class="main-market" onclick="toggleGroup('${id}')">
+                    <div class="perc-box">
+                        ${trending ? '<svg class="trending-icon" viewBox="0 0 24 24"><path d="M22 7l-9.5 9.5-6-6L2 15M16 7h6v6"/></svg>' : ''}
+                        <span class="percentage">${main.prob}%</span>
                     </div>
+                    <div class="text">${g.title}<span class="choice-label">${main.choice}</span></div>
                     <div class="btn-group">
-                        <span class="vol-pill">$${formatVol(group.volume)}</span>
-                        <a href="https://polymarket.com/event/${group.slug}" target="_blank" class="bet-btn" onclick="event.stopPropagation()">Wanna Bet?</a>
+                        <span class="vol-pill">$${formatV(g.vol)}</span>
+                        <a href="https://polymarket.com/event/${g.slug}" target="_blank" class="bet-btn" onclick="event.stopPropagation()">Wanna Bet?</a>
                     </div>
                 </div>
-                <div class="sub-markets" id="${groupId}">
-                    ${group.markets.slice(1).map(m => `
+                <div class="sub-markets" id="${id}">
+                    ${g.markets.slice(1).map(m => `
                         <div class="sub-item">
-                            <span style="color:var(--accent); font-weight:bold; width:45px; font-size:1.1rem; text-align:right;">${m.prob}%</span>
-                            <span style="flex-grow:1; color:var(--text-dim); font-size:0.85rem; padding-left:10px;">${m.choice}</span>
-                            <a href="https://polymarket.com/event/${group.slug}" target="_blank" class="bet-btn" style="padding: 5px 10px;" onclick="event.stopPropagation()">Wanna Bet?</a>
+                            <span style="color:var(--accent); font-weight:800; width:50px; text-align:right; font-size:1.1rem;">${m.prob}%</span>
+                            <span style="flex:1; padding-left:15px; color:var(--text-dim); font-size:0.9rem;">${m.choice}</span>
+                            <a href="https://polymarket.com/event/${g.slug}" target="_blank" class="bet-btn" style="padding:6px 10px;">Wanna Bet?</a>
                         </div>
                     `).join('')}
                 </div>
             </div>`);
         });
         currentIndex += itemsPerPage;
-        document.getElementById('load-more-btn').style.display = (currentIndex >= filteredData.length) ? "none" : "block";
+        document.getElementById('load-more-btn').style.display = currentIndex >= filteredData.length ? "none" : "block";
     }
 
-    window.toggleGroup = (id) => { const el = document.getElementById(id); el.style.display = (el.style.display === "block") ? "none" : "block"; };
-    (async () => { if(await fetchData()) renderInitial(); setInterval(async () => { await fetchData(); renderInitial(); }, 60000); })();
+    function render() { filteredData = [...allGroupedData]; document.getElementById('odds-list').innerHTML = ""; currentIndex = 0; loadNext(); }
+    function handleSearch() { const q = document.getElementById('search-input').value.toLowerCase(); filteredData = allGroupedData.filter(m => m.title.toLowerCase().includes(q)); document.getElementById('odds-list').innerHTML = ""; currentIndex = 0; loadNext(); }
+    window.toggleGroup = id => { const e = document.getElementById(id); e.style.display = e.style.display === "block" ? "none" : "block"; };
+
+    (async () => { if(await fetchData()) render(); setInterval(async () => { await fetchData(); }, 60000); })();
 </script>
 </body>
 </html>

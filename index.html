@@ -10,38 +10,32 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OddsPulse | Global Market Intelligence</title>
+    <title>OddsPulse | Live Markets</title>
     <style>
         :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text-main: #f0f6fc; --text-dim: #8b949e; --accent: #00ff88; }
         body.bright-mode { --bg: #ffffff; --card: #f6f8fa; --border: #d0d7de; --text-main: #1f2328; --text-dim: #57606a; --accent: #00a35c; }
         * { box-sizing: border-box; }
-        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; transition: 0.3s; }
+        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
         .container { max-width: 800px; margin: 0 auto; }
-        header { text-align: center; padding: 20px 0; position: relative; }
-        #theme-toggle { position: absolute; top: 0; right: 0; background: var(--card); border: 1px solid var(--border); color: var(--text-main); padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; }
-        h1 { font-size: 1.6rem; text-transform: uppercase; margin-bottom: 5px; }
-        #status { font-size: 0.75rem; color: var(--accent); font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        .pulse-dot { width: 7px; height: 7px; background-color: var(--accent); border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(0.9); } 70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(0,255,136,0); } 100% { transform: scale(0.9); } }
+        header { text-align: center; padding: 20px 0; }
+        h1 { font-size: 1.6rem; text-transform: uppercase; margin: 0; }
+        #status { font-size: 0.75rem; color: var(--accent); font-weight: bold; margin-top: 5px; text-transform: uppercase; }
         
-        #search-input { width: 100%; padding: 14px 22px; background: var(--card); border: 2px solid var(--border); border-radius: 50px; color: var(--text-main); font-size: 1rem; margin-bottom: 20px; outline: none; }
+        #search-input { width: 100%; padding: 14px 22px; background: var(--card); border: 2px solid var(--border); border-radius: 50px; color: var(--text-main); font-size: 1rem; margin: 15px 0; outline: none; }
         
-        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; transition: 0.2s; }
-        .event-group:hover { border-color: var(--accent); }
+        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; }
+        .main-market { display: flex; align-items: center; padding: 12px; gap: 8px; cursor: pointer; }
         
-        /* MOBILE-FRIENDLY FLEX */
-        .main-market { display: flex; align-items: center; padding: 12px; gap: 10px; cursor: pointer; flex-wrap: nowrap; }
-        
-        .perc-box { display: flex; align-items: center; justify-content: flex-end; min-width: 105px; }
-        .percentage { color: var(--accent); font-size: 1.8rem; font-weight: 800; line-height: 1; }
-        .trending-icon { width: 20px; height: 20px; stroke: var(--accent); fill: none; stroke-width: 2.5; margin-right: 6px; animation: pulse 2s infinite; }
+        .perc-box { display: flex; align-items: center; justify-content: flex-end; min-width: 100px; flex-shrink: 0; }
+        .percentage { color: var(--accent); font-size: 1.8rem; font-weight: 800; }
+        .trending-icon { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 2.5; margin-right: 5px; }
 
-        .text { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 600; line-height: 1.2; padding-right: 5px; }
-        .choice-label { display: block; font-size: 0.75rem; color: var(--text-dim); font-weight: 400; margin-top: 2px; }
+        .text { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 600; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .choice-label { display: block; font-size: 0.75rem; color: var(--text-dim); font-weight: 400; }
 
-        .btn-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-        .vol-pill { background: rgba(139,148,158,0.1); border: 1px solid var(--border); color: var(--text-dim); padding: 7px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; white-space: nowrap; }
-        .bet-btn { background: var(--accent); color: #ffffff !important; padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; text-decoration: none; white-space: nowrap; }
+        .btn-group { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        .vol-pill { background: rgba(139,148,158,0.1); border: 1px solid var(--border); color: var(--text-dim); padding: 7px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; }
+        .bet-btn { background: var(--accent); color: #ffffff !important; padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; text-decoration: none; }
 
         .sub-markets { display: none; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); padding: 10px; }
         .sub-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
@@ -49,10 +43,11 @@
         #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: #000; width: 45px; height: 45px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; border: none; z-index: 1000; }
 
         @media (max-width: 600px) {
-            .main-market { flex-wrap: wrap; }
-            .perc-box { min-width: 80px; justify-content: flex-start; }
-            .text { flex: 1 1 60%; order: 0; font-size: 1rem; }
-            .btn-group { width: 100%; justify-content: space-between; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+            .percentage { font-size: 1.5rem; }
+            .perc-box { min-width: 75px; }
+            .text { font-size: 0.85rem; }
+            .vol-pill { padding: 5px 8px; font-size: 0.65rem; }
+            .bet-btn { padding: 8px 10px; font-size: 0.7rem; }
         }
     </style>
 </head>
@@ -60,14 +55,13 @@
 
 <div class="container">
     <header>
-        <button id="theme-toggle" onclick="toggleTheme()">☀️ Bright Mode</button>
-        <h1>OddsPulse Live</h1>
-        <div id="status"><span class="pulse-dot"></span> <span id="status-text">SYNCING PULSE...</span></div>
+        <h1 onclick="location.reload()">OddsPulse Live</h1>
+        <div id="status">Syncing Pulse...</div>
     </header>
 
     <input type="text" id="search-input" placeholder="Search markets..." onkeyup="handleSearch()">
     <div id="odds-list"></div>
-    <button id="load-more-btn" style="width:100%; padding:18px; background:var(--card); color:var(--accent); border:1px solid var(--accent); border-radius:50px; margin:20px 0 50px; cursor:pointer;" onclick="loadNext()">Load More</button>
+    <button id="load-more-btn" style="width:100%; padding:15px; background:var(--card); color:var(--accent); border:1px solid var(--accent); border-radius:50px; margin:30px 0; cursor:pointer; display:none;" onclick="loadNext()">Load More</button>
 </div>
 
 <button id="back-to-top" onclick="scrollToTop()">↑</button>
@@ -76,68 +70,61 @@
     let allGroupedData = []; 
     let filteredData = [];   
     let currentIndex = 0; 
-    const itemsPerPage = 10;
 
-    function toggleTheme() {
-        document.body.classList.toggle('bright-mode');
-        localStorage.setItem('theme', document.body.classList.contains('bright-mode') ? 'bright' : 'dark');
+    // Robust fetch that tries relative and absolute paths
+    async function getPulseData() {
+        const paths = ['./data.json', 'data.json', '/data.json'];
+        for (let path of paths) {
+            try {
+                const r = await fetch(path + '?v=' + Date.now());
+                if (r.ok) return await r.json();
+            } catch (e) {}
+        }
+        throw new Error("All paths failed");
     }
-    if (localStorage.getItem('theme') === 'bright') document.body.classList.add('bright-mode');
-
-    window.onscroll = () => document.getElementById('back-to-top').style.display = (window.scrollY > 300) ? "flex" : "none";
-    function scrollToTop() { window.scrollTo({top: 0, behavior: 'smooth'}); }
 
     function getCat(t) {
         t = t.toLowerCase();
-        if (t.includes('trump') || t.includes('biden') || t.includes('election') || t.includes('senate') || t.includes('president')) return 'us-politics';
-        if (t.includes('ukraine') || t.includes('israel') || t.includes('china') || t.includes('russia') || t.includes('un ')) return 'world-politics';
-        if (t.includes('nfl') || t.includes('nba') || t.includes('soccer') || t.includes('bowl') || t.includes('fifa')) return 'sports';
-        return 'general';
+        if (t.includes('trump') || t.includes('biden') || t.includes('election')) return 'us';
+        if (t.includes('israel') || t.includes('ukraine') || t.includes('world') || t.includes('china')) return 'world';
+        if (t.includes('nfl') || t.includes('nba') || t.includes('soccer')) return 'sports';
+        return 'gen';
     }
 
-    async function fetchData() {
+    async function init() {
         try {
-            const res = await fetch('./data.json?v=' + Date.now());
-            if (!res.ok) throw new Error('Network fail');
-            const data = await res.json();
+            const data = await getPulseData();
             const groups = {};
-            
             data.forEach(e => {
                 if (!e.markets) return;
                 const title = e.title.replace(/by ___ \?/g, "").trim();
-                const vol = parseFloat(e.volume || 0);
-                const vol24 = parseFloat(e.volume24hr || 0);
-                
                 e.markets.forEach(m => {
                     let p = 0;
                     try { p = JSON.parse(m.outcomePrices)[0]; } catch(err) { p = m.price || 0; }
                     const prob = Math.round(parseFloat(p) * 100);
                     if (prob < 5 || prob > 95) return;
-                    if (!groups[title]) groups[title] = { title, slug: e.slug, vol, vol24, cat: getCat(title), markets: [] };
+                    if (!groups[title]) groups[title] = { title, slug: e.slug, vol: parseFloat(e.volume || 0), vol24: parseFloat(e.volume24hr || 0), cat: getCat(title), markets: [] };
                     groups[title].markets.push({ prob, choice: m.groupItemTitle || "Yes" });
                 });
             });
 
+            // Logic: 4 Politics (2 US, 2 World), 3 Sports
             const sorted = Object.values(groups).sort((a,b) => b.vol24 - a.vol24);
             let counts = { us: 0, world: 0, sports: 0 };
             let final = [];
-
             sorted.forEach(m => {
-                const polTotal = counts.us + counts.world;
-                if (m.cat === 'us-politics' && counts.us < 2 && polTotal < 4) { final.push(m); counts.us++; }
-                else if (m.cat === 'world-politics' && counts.world < 2 && polTotal < 4) { final.push(m); counts.world++; }
+                const pol = counts.us + counts.world;
+                if (m.cat === 'us' && counts.us < 2 && pol < 4) { final.push(m); counts.us++; }
+                else if (m.cat === 'world' && counts.world < 2 && pol < 4) { final.push(m); counts.world++; }
                 else if (m.cat === 'sports' && counts.sports < 3) { final.push(m); counts.sports++; }
-                else if (m.cat === 'general' || final.length < 10) { 
-                    if (!final.find(x => x.title === m.title)) final.push(m); 
-                }
+                else if (m.cat === 'gen' || final.length < 10) final.push(m);
             });
 
-            allGroupedData = final.slice(0, 50); 
-            document.getElementById('status-text').innerText = "SYSTEM LIVE";
-            return true;
-        } catch (e) { 
-            document.getElementById('status-text').innerText = "SYNC OFFLINE";
-            return false; 
+            allGroupedData = final.slice(0, 50);
+            document.getElementById('status').innerText = "System Live";
+            render();
+        } catch (e) {
+            document.getElementById('status').innerText = "Sync Offline - Check data.json";
         }
     }
 
@@ -145,12 +132,12 @@
 
     function loadNext() {
         const list = document.getElementById('odds-list');
-        const batch = filteredData.slice(currentIndex, currentIndex + itemsPerPage);
+        const batch = filteredData.slice(currentIndex, currentIndex + 10);
         batch.forEach((g, i) => {
             g.markets.sort((a,b) => b.prob - a.prob);
             const main = g.markets[0];
             const id = `g-${currentIndex + i}`;
-            const trending = (currentIndex + i < 3); // Top 3 are trending
+            const trending = (currentIndex + i < 3);
 
             list.insertAdjacentHTML('beforeend', `
             <div class="event-group">
@@ -168,27 +155,25 @@
                 <div class="sub-markets" id="${id}">
                     ${g.markets.slice(1).map(m => `
                         <div class="sub-item">
-                            <span style="color:var(--accent); font-weight:800; width:50px; text-align:right; font-size:1.1rem;">${m.prob}%</span>
-                            <span style="flex:1; padding-left:15px; color:var(--text-dim); font-size:0.9rem;">${m.choice}</span>
+                            <span style="color:var(--accent); font-weight:800; width:50px; text-align:right;">${m.prob}%</span>
+                            <span style="flex:1; padding-left:15px; color:var(--text-dim); font-size:0.85rem;">${m.choice}</span>
                             <a href="https://polymarket.com/event/${g.slug}" target="_blank" class="bet-btn" style="padding:6px 10px;">Wanna Bet?</a>
                         </div>
                     `).join('')}
                 </div>
             </div>`);
         });
-        currentIndex += itemsPerPage;
+        currentIndex += 10;
         document.getElementById('load-more-btn').style.display = currentIndex >= filteredData.length ? "none" : "block";
     }
 
     function render() { filteredData = [...allGroupedData]; document.getElementById('odds-list').innerHTML = ""; currentIndex = 0; loadNext(); }
     function handleSearch() { const q = document.getElementById('search-input').value.toLowerCase(); filteredData = allGroupedData.filter(m => m.title.toLowerCase().includes(q)); document.getElementById('odds-list').innerHTML = ""; currentIndex = 0; loadNext(); }
+    function scrollToTop() { window.scrollTo({top: 0, behavior: 'smooth'}); }
     window.toggleGroup = id => { const e = document.getElementById(id); e.style.display = e.style.display === "block" ? "none" : "block"; };
+    window.onscroll = () => document.getElementById('back-to-top').style.display = (window.scrollY > 300) ? "flex" : "none";
 
-    (async () => { 
-        const success = await fetchData(); 
-        if(success) render(); 
-        setInterval(async () => { await fetchData(); }, 60000); 
-    })();
+    init();
 </script>
 </body>
 </html>

@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OddsPulse | Real-Time Momentum Tracker</title>
+    <title>OddsPulse | Balanced Market Intelligence</title>
     
     <style>
         :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text-main: #f0f6fc; --text-dim: #8b949e; --accent: #00ff88; --search-bg: #161b22; }
@@ -27,20 +27,20 @@
         @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); } 100% { transform: scale(0.95); } }
         .search-container { position: sticky; top: 10px; z-index: 100; margin: 15px 0 20px 0; }
         #search-input { width: 100%; padding: 14px 22px; background: var(--search-bg); border: 2px solid var(--border); border-radius: 50px; color: var(--text-main); font-size: 1rem; outline: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        #search-input:focus { border-color: var(--accent); }
-        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; transition: 0.3s; }
+        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 166px; margin-bottom: 12px; overflow: hidden; transition: 0.3s; border-radius: 16px; }
         .event-group:hover { border-color: var(--accent); transform: translateY(-2px); }
         .main-market { display: flex; align-items: center; padding: 12px; gap: 5px; cursor: pointer; }
-        
-        /* MOMENTUM ICON CSS */
         .percentage-container { display: flex; align-items: center; justify-content: flex-end; min-width: 95px; }
         .momentum-icon { width: 18px; height: 18px; fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; margin-right: 8px; animation: iconPulse 2s infinite; }
         @keyframes iconPulse { 0% { opacity: 0.5; } 70% { opacity: 1; } 100% { opacity: 0.5; } }
-        
         .percentage { color: var(--accent); font-size: 1.6rem; font-weight: 800; line-height: 1; text-align: right; }
         .text { flex-grow: 1; flex-shrink: 1; padding: 0 5px; font-size: 0.95rem; line-height: 1.2; font-weight: 600; overflow-wrap: break-word; }
         .choice-label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; font-weight: normal; }
-        .bet-btn { background: var(--accent); color: #000; padding: 8px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-decoration: none; white-space: nowrap; flex-shrink: 0; text-align: center; }
+
+        /* BUTTON: WHITE TEXT FIX */
+        .bet-btn { background: var(--accent); color: #ffffff !important; padding: 8px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-decoration: none; white-space: nowrap; flex-shrink: 0; text-align: center; }
+        .bet-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+
         .sub-markets { display: none; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); padding: 5px 12px 12px 12px; }
         .sub-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 5px; }
         #back-to-top { position: fixed; bottom: 25px; right: 20px; background: var(--accent); color: #000; width: 45px; height: 45px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; z-index: 1000; border: none; }
@@ -53,18 +53,18 @@
     <header>
         <button id="theme-toggle" onclick="toggleTheme()">☀️ Bright Mode</button>
         <h1>OddsPulse Live</h1>
-        <div id="status"><span class="pulse-dot"></span> <span id="status-text">SCANNING GLOBAL MOMENTUM...</span></div>
+        <div id="status"><span class="pulse-dot"></span> <span id="status-text">SCANNING GLOBAL MARKETS...</span></div>
     </header>
 
     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search live momentum..." onkeyup="handleSearch()">
+        <input type="text" id="search-input" placeholder="Search live insights..." onkeyup="handleSearch()">
     </div>
 
     <div id="odds-list"></div>
     <button id="load-more-btn" style="width:100%; padding:18px; background:var(--card); color:var(--accent); border:2px solid var(--accent); border-radius:50px; font-weight:bold; cursor:pointer; margin:20px 0 50px 0;" onclick="loadNext()">Load More Results</button>
 
     <footer style="text-align:center; padding:40px 10px; color:var(--text-dim); font-size:0.75rem; border-top:1px solid var(--border);">
-        &copy; 2026 OddsPulse &bull; Data via Polymarket &bull; Buzz & Slot Filters Active
+        &copy; 2026 OddsPulse &bull; Constraints: Politics (Total 4 Max, 2 US, 2 Global) &bull; Sports (3 Max)
     </footer>
 </div>
 
@@ -90,8 +90,9 @@
 
     function getCategory(title) {
         const t = title.toLowerCase();
-        if (t.includes('election') || t.includes('trump') || t.includes('biden') || t.includes('senate')) return 'politics';
-        if (t.includes('nba') || t.includes('nfl') || t.includes('soccer') || t.includes('bowl')) return 'sports';
+        if (t.includes('election') || t.includes('trump') || t.includes('biden') || t.includes('senate') || t.includes('governor') || t.includes('us presidential') || t.includes('democrat') || t.includes('republican')) return 'us-politics';
+        if (t.includes('israel') || t.includes('ukraine') || t.includes('china') || t.includes('uk ') || t.includes('parliament') || t.includes('europe') || t.includes('russia') || t.includes('iran') || t.includes('un ')) return 'global-politics';
+        if (t.includes('nba') || t.includes('nfl') || t.includes('soccer') || t.includes('bowl') || t.includes('champions league') || t.includes('fifa') || t.includes('mlb')) return 'sports';
         return 'general';
     }
 
@@ -108,13 +109,11 @@
                 if (!event.markets) return;
                 const title = event.title.replace(/by ___ \?/g, "").trim();
                 const curVol = parseFloat(event.volume || 0);
-                
                 let momentum = (parseFloat(event.volume24hr || 0)) / 6;
                 if (history[title]) {
                     const past = history[title].filter(s => s.ts > fourHoursAgo);
                     if (past.length > 0) momentum = curVol - past[0].vol;
                 }
-
                 if (!history[title]) history[title] = [];
                 history[title].push({ ts: now, vol: curVol });
                 history[title] = history[title].filter(s => s.ts > now - (6 * 60 * 60 * 1000));
@@ -134,22 +133,28 @@
             localStorage.setItem('volumeHistory', JSON.stringify(history));
 
             let sortedByBuzz = Object.values(groups).sort((a,b) => b.buzz - a.buzz);
-            
-            // Calculate Threshold: Top 25% of the list gets the icon
             if(sortedByBuzz.length > 0) buzzThreshold = sortedByBuzz[Math.floor(sortedByBuzz.length * 0.25)].buzz;
 
-            let counts = { politics: 0, sports: 0 };
+            // STICKY LOGIC: Max 4 politics total (2 US, 2 Global), 3 Sports Max
+            let counts = { us: 0, global: 0, sports: 0 };
             let finalSelection = [];
 
             sortedByBuzz.forEach(m => {
-                // Topic Constraint
-                if (m.category === 'politics' && counts.politics < 3) { finalSelection.push(m); counts.politics++; }
-                else if (m.category === 'sports' && counts.sports < 3) { finalSelection.push(m); counts.sports++; }
-                else if (m.category === 'general') { finalSelection.push(m); }
+                const totalPolitics = counts.us + counts.global;
+                
+                if (m.category === 'us-politics') {
+                    if (counts.us < 2 && totalPolitics < 4) { finalSelection.push(m); counts.us++; }
+                } else if (m.category === 'global-politics') {
+                    if (counts.global < 2 && totalPolitics < 4) { finalSelection.push(m); counts.global++; }
+                } else if (m.category === 'sports') {
+                    if (counts.sports < 3) { finalSelection.push(m); counts.sports++; }
+                } else if (m.category === 'general') {
+                    finalSelection.push(m);
+                }
             });
 
             allGroupedData = finalSelection;
-            document.getElementById('status-text').innerText = `MOMENTUM SYNCED`;
+            document.getElementById('status-text').innerText = `SYSTEM LIVE`;
             return true;
         } catch (e) { return false; }
     }
@@ -161,14 +166,10 @@
         const list = document.getElementById('odds-list');
         const nextBatch = filteredData.slice(currentIndex, currentIndex + itemsPerPage);
         nextBatch.forEach((group, idx) => {
-            // FIX: Sort sub-markets by probability high-to-low
             group.markets.sort((a, b) => b.prob - a.prob);
-            
             const main = group.markets[0];
             const hasMore = group.markets.length > 1;
             const groupId = `group-${currentIndex + idx}`;
-            
-            // FIX: Only show icon if buzz is above threshold
             const showIcon = group.buzz >= buzzThreshold && group.buzz > 0;
             
             list.insertAdjacentHTML('beforeend', `

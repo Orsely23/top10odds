@@ -12,133 +12,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <title>Top 10 Odds Live | Real-Time Polymarket Tracking</title>
-    <meta name="description" content="Get the top 10 live odds from Polymarket. Real-time predictions, volume tracking, and market trends.">
-    <meta property="og:title" content="Top 10 Odds Live | Real-Time Market Predictions">
-    <meta property="og:description" content="Track the biggest moves in the prediction markets. Updated live.">
-    <meta property="og:url" content="https://www.top10oddslive.com">
-    <meta property="og:type" content="website">
-
+    <title>OddsPulse | Real-Time Momentum Tracker</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Odds Live">
-
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d1117'/><path d='M20 70 l20-20 l15 15 l30-35 M85 30 l0 15 M85 30 l-15 0' stroke='%2300ff88' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
     
     <style>
-        :root {
-            --bg: #0d1117;
-            --card: #161b22;
-            --border: #30363d;
-            --text-main: #f0f6fc;
-            --text-dim: #8b949e;
-            --accent: #00ff88;
-            --search-bg: #161b22;
-        }
-
-        body.bright-mode {
-            --bg: #ffffff;
-            --card: #f6f8fa;
-            --border: #d0d7de;
-            --text-main: #1f2328;
-            --text-dim: #57606a;
-            --accent: #00a35c;
-            --search-bg: #ffffff;
-        }
-
+        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text-main: #f0f6fc; --text-dim: #8b949e; --accent: #00ff88; --search-bg: #161b22; }
+        body.bright-mode { --bg: #ffffff; --card: #f6f8fa; --border: #d0d7de; --text-main: #1f2328; --text-dim: #57606a; --accent: #00a35c; --search-bg: #ffffff; }
         * { box-sizing: border-box; }
-
-        body { 
-            background-color: var(--bg); color: var(--text-main); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            margin: 0; padding: 10px; scroll-behavior: smooth; transition: 0.3s; 
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; scroll-behavior: smooth; transition: 0.3s; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 800px; margin: 0 auto; }
-        
         header { text-align: center; padding: 25px 0 10px; position: relative; }
-        
-        #theme-toggle {
-            position: absolute; top: 0; right: 0;
-            background: var(--card); border: 1px solid var(--border);
-            color: var(--text-main); padding: 6px 10px; border-radius: 20px;
-            font-size: 0.7rem; font-weight: bold; cursor: pointer; transition: 0.2s;
-        }
+        #theme-toggle { position: absolute; top: 0; right: 0; background: var(--card); border: 1px solid var(--border); color: var(--text-main); padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
         #theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
-
-        h1 { font-size: 1.6rem; margin: 15px 0 5px; letter-spacing: -0.5px; }
-        #status { font-size: 0.75rem; color: var(--accent); font-weight: bold; display: flex; align-items: center; justify-content: center; letter-spacing: 1px; }
+        h1 { font-size: 1.6rem; margin: 15px 0 5px; letter-spacing: -0.5px; text-transform: uppercase; }
+        #status { font-size: 0.75rem; color: var(--accent); font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .pulse-dot { width: 7px; height: 7px; background-color: var(--accent); border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite; }
-        
-        @keyframes pulse { 
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); } 
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); } 
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } 
-        }
-
-        /* SEARCH BAR */
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } }
         .search-container { position: sticky; top: 10px; z-index: 100; margin: 15px 0 20px 0; }
-        #search-input { 
-            width: 100%; padding: 14px 22px; background: var(--search-bg); 
-            border: 2px solid var(--border); border-radius: 50px; color: var(--text-main); 
-            font-size: 1rem; outline: none; transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
+        #search-input { width: 100%; padding: 14px 22px; background: var(--search-bg); border: 2px solid var(--border); border-radius: 50px; color: var(--text-main); font-size: 1rem; outline: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         #search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2); }
-
-        /* SCROLL TO TOP ARROW */
-        #back-to-top {
-            position: fixed; bottom: 25px; right: 20px;
-            background: var(--accent); color: #000;
-            width: 45px; height: 45px; border-radius: 50%;
-            display: none; align-items: center; justify-content: center;
-            font-size: 1.5rem; cursor: pointer; z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: none;
-            transition: 0.3s;
-        }
-
-        /* CARDS */
-        .event-group { 
-            background: var(--card); border: 1px solid var(--border); 
-            border-radius: 16px; margin-bottom: 12px; overflow: hidden; 
-            transition: 0.3s; 
-        }
+        #back-to-top { position: fixed; bottom: 25px; right: 20px; background: var(--accent); color: #000; width: 45px; height: 45px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: none; transition: 0.3s; }
+        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; transition: 0.3s; }
         .event-group:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-
         .main-market { display: flex; align-items: center; padding: 12px; gap: 5px; cursor: pointer; }
-        .percentage { color: var(--accent); font-size: 1.6rem; font-weight: 800; min-width: 65px; text-align: center; }
+        
+        /* NEW MOMENTUM ICON CSS */
+        .percentage-container { display: flex; align-items: center; justify-content: center; min-width: 90px; }
+        .momentum-icon { width: 18px; height: 18px; fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; margin-right: 8px; animation: iconPulse 2s infinite; }
+        @keyframes iconPulse { 0% { opacity: 0.6; transform: scale(0.95); } 70% { opacity: 1; transform: scale(1); } 100% { opacity: 0.6; transform: scale(0.95); } }
+        
+        .percentage { color: var(--accent); font-size: 1.6rem; font-weight: 800; line-height: 1; text-align: right; }
         .text { flex-grow: 1; flex-shrink: 1; padding: 0 5px; font-size: 0.95rem; line-height: 1.2; font-weight: 600; overflow-wrap: break-word; }
         .choice-label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; font-weight: normal; }
-        
-        .bet-btn { 
-            background: var(--accent); color: #000; padding: 8px 12px; border-radius: 8px; 
-            font-size: 0.7rem; font-weight: 800; text-decoration: none; 
-            white-space: nowrap; flex-shrink: 0; text-align: center; transition: 0.2s;
-        }
+        .bet-btn { background: var(--accent); color: #000; padding: 8px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-decoration: none; white-space: nowrap; flex-shrink: 0; text-align: center; transition: 0.2s; }
         .bet-btn:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 0 10px rgba(0, 255, 136, 0.4); }
         body.bright-mode .bet-btn { color: #fff; }
-
         .sub-markets { display: none; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); padding: 5px 12px 12px 12px; }
         .sub-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 5px; }
-
-        @media (min-width: 600px) {
-            body { padding: 20px; }
-            h1 { font-size: 2.2rem; }
-            .main-market { padding: 20px; gap: 15px; }
-            .percentage { font-size: 2.2rem; min-width: 90px; }
-            .text { font-size: 1.2rem; padding: 0 20px; }
-            .bet-btn { font-size: 0.8rem; padding: 10px 18px; }
-        }
-
-        #load-more-btn { 
-            width: 100%; padding: 18px; background: var(--card); color: var(--accent); 
-            border: 2px solid var(--accent); border-radius: 50px; font-weight: bold; 
-            cursor: pointer; margin: 20px 0 50px 0; transition: 0.3s;
-        }
+        @media (min-width: 600px) { body { padding: 20px; } h1 { font-size: 2.2rem; } .main-market { padding: 20px; gap: 15px; } .momentum-icon { width: 22px; height: 22px; } .percentage { font-size: 2.2rem; } .text { font-size: 1.2rem; padding: 0 20px; } .bet-btn { font-size: 0.8rem; padding: 10px 18px; } }
+        #load-more-btn { width: 100%; padding: 18px; background: var(--card); color: var(--accent); border: 2px solid var(--accent); border-radius: 50px; font-weight: bold; cursor: pointer; margin: 20px 0 50px 0; transition: 0.3s; }
         #load-more-btn:hover { background: var(--accent); color: #000; }
-
         footer { text-align: center; padding: 40px 10px; color: var(--text-dim); font-size: 0.75rem; border-top: 1px solid var(--border); }
         .footer-links a { color: var(--accent); text-decoration: none; font-weight: bold; }
     </style>
@@ -148,22 +62,21 @@
 <div class="container">
     <header id="top">
         <button id="theme-toggle" onclick="toggleTheme()">☀️ Bright Mode</button>
-        <h1>TOP 10 ODDS LIVE</h1>
-        <div id="status"><span class="pulse-dot"></span> <span id="status-text">SCANNING MARKETS...</span></div>
-        <div id="last-update" style="font-size:0.65rem; color:var(--text-dim); margin-top:5px;">Initializing Stream...</div>
+        <h1>OddsPulse Live</h1>
+        <div id="status"><span class="pulse-dot"></span> <span id="status-text">SCANNING GLOBAL MOMENTUM...</span></div>
+        <div id="last-update" style="font-size:0.6rem; color:var(--text-dim); margin-top:5px; text-transform:uppercase;">Initializing AI Stream...</div>
     </header>
 
     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search live odds..." onkeyup="handleSearch()">
+        <input type="text" id="search-input" placeholder="Search live momentum..." onkeyup="handleSearch()">
     </div>
 
     <div id="odds-list"></div>
     <button id="load-more-btn" onclick="loadNext()">Load More Results</button>
 
     <footer>
-        <div class="footer-links">Data via <a href="https://polymarket.com" target="_blank">Polymarket</a></div>
-        <p style="margin: 10px 0;">Aggregated live prediction data for informational use.</p>
-        &copy; 2026 Top 10 Odds Live
+        <div class="footer-links">Data via Polymarket API &bull; Diversity Filter Active &bull; Buzz Filter Active (4h Momentum)</div>
+        &copy; 2026 OddsPulse
     </footer>
 </div>
 
@@ -191,28 +104,48 @@
 
     // SCROLL TO TOP LOGIC
     const topBtn = document.getElementById('back-to-top');
-    window.onscroll = function() {
-        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-            topBtn.style.display = "flex";
-        } else {
-            topBtn.style.display = "none";
-        }
-    };
-    function scrollToTop() {
-        window.scrollTo({top: 0, behavior: 'smooth'});
+    window.onscroll = () => { topBtn.style.display = (window.scrollY > 300) ? "flex" : "none"; };
+    function scrollToTop() { window.scrollTo({top: 0, behavior: 'smooth'}); }
+
+    // CATEGORIZATION LOGIC
+    function getCategory(title) {
+        const t = title.toLowerCase();
+        if (t.includes('election') || t.includes('trump') || t.includes('biden') || t.includes('senate') || t.includes('president')) return 'politics';
+        if (t.includes('nba') || t.includes('nfl') || t.includes('soccer') || t.includes('fifa') || t.includes('super bowl') || t.includes('mlb')) return 'sports';
+        return 'general';
     }
 
-    // DATA LOGIC
     async function fetchData() {
         try {
-            document.getElementById('status-text').innerText = "SCANNING MARKETS...";
             const response = await fetch('./data.json?v=' + Date.now());
             const rawData = await response.json();
+            
+            // 1. BUZZ FILTER LOGIC: Track Momentum (4h Volume Change)
+            const now = Date.now();
+            const history = JSON.parse(localStorage.getItem('volumeHistory') || '{}');
+            const fourHoursAgo = now - (4 * 60 * 60 * 1000);
             const groups = {};
             
             rawData.forEach(event => {
                 if (!event || !event.markets) return;
-                const title = (event.title || "").replace(/by ___ \?/g, "").trim();
+                const title = event.title.replace(/by ___ \?/g, "").trim();
+                const currentTotalVol = parseFloat(event.volume || 0);
+                const api24hVol = parseFloat(event.volume24hr || 0);
+                
+                // Calculate Momentum (Buzz Score)
+                let momentum = api24hVol / 6; // Cold Start fallback
+                if (history[title]) {
+                    const pastSnapshots = history[title].filter(s => s.ts > fourHoursAgo);
+                    if (pastSnapshots.length > 0) {
+                        momentum = currentTotalVol - pastSnapshots[0].vol;
+                    }
+                }
+
+                // Update History (keep last 6h)
+                if (!history[title]) history[title] = [];
+                history[title].push({ ts: now, vol: currentTotalVol });
+                history[title] = history[title].filter(s => s.ts > now - (6 * 60 * 60 * 1000));
+
                 event.markets.forEach(market => {
                     let p = 0;
                     try {
@@ -223,38 +156,37 @@
                     const prob = Math.round(p * 100);
                     if (prob < 5 || prob > 95) return;
                     if (!groups[title]) {
-                        groups[title] = { title, slug: event.slug, volume: parseFloat(event.volume || 0), markets: [] };
+                        groups[title] = { title, slug: event.slug, buzz: momentum, category: getCategory(title), markets: [] };
                     }
                     groups[title].markets.push({ prob, choice: market.groupItemTitle || "Yes" });
                 });
             });
 
-            allGroupedData = Object.values(groups).filter(g => g.markets.length > 0).sort((a,b) => b.volume - a.volume);
-            allGroupedData.forEach(g => g.markets.sort((a,b) => b.prob - a.prob));
-            
-            document.getElementById('last-update').innerText = `SYNCED: ${new Date().toLocaleTimeString()}`;
-            document.getElementById('status-text').innerText = `SYSTEM LIVE: ${allGroupedData.length} MARKETS`;
+            localStorage.setItem('volumeHistory', JSON.stringify(history));
+
+            // 2. CATEGORY SLOT LOGIC (3 Politics, 3 Sports max)
+            let sortedByBuzz = Object.values(groups).sort((a,b) => b.buzz - a.buzz);
+            let counts = { politics: 0, sports: 0 };
+            let finalSelection = [];
+
+            sortedByBuzz.forEach(m => {
+                if (m.category === 'politics' && counts.politics < 3) {
+                    finalSelection.push(m); counts.politics++;
+                } else if (m.category === 'sports' && counts.sports < 3) {
+                    finalSelection.push(m); counts.sports++;
+                } else if (m.category === 'general') {
+                    finalSelection.push(m);
+                }
+            });
+
+            allGroupedData = finalSelection;
+            document.getElementById('status-text').innerText = `MOMENTUM SYNCED`;
             return true;
-        } catch (e) { 
-            document.getElementById('status-text').innerText = "SYNC OFFLINE";
-            return false; 
-        }
+        } catch (e) { return false; }
     }
 
-    function renderInitial() {
-        filteredData = [...allGroupedData];
-        document.getElementById('odds-list').innerHTML = "";
-        currentIndex = 0;
-        loadNext();
-    }
-
-    function handleSearch() {
-        const query = document.getElementById('search-input').value.toLowerCase();
-        filteredData = allGroupedData.filter(g => g.title.toLowerCase().includes(query));
-        document.getElementById('odds-list').innerHTML = "";
-        currentIndex = 0;
-        loadNext();
-    }
+    function renderInitial() { filteredData = [...allGroupedData]; document.getElementById('odds-list').innerHTML = ""; currentIndex = 0; loadNext(); }
+    function handleSearch() { const q = document.getElementById('search-input').value.toLowerCase(); filteredData = allGroupedData.filter(g => g.title.toLowerCase().includes(q)); document.getElementById('odds-list').innerHTML = ""; currentIndex = 0; loadNext(); }
 
     function loadNext() {
         const list = document.getElementById('odds-list');
@@ -264,13 +196,16 @@
             const hasMore = group.markets.length > 1;
             const groupId = `group-${currentIndex + idx}`;
             const betUrl = group.slug ? `https://polymarket.com/event/${group.slug}` : `https://polymarket.com`;
-            const html = `
+            list.insertAdjacentHTML('beforeend', `
             <div class="event-group">
                 <div class="main-market" onclick="toggleGroup('${groupId}')">
                     <div style="display:flex;align-items:center;flex-grow:1;overflow:hidden;">
-                        <span class="percentage">${main.prob}%</span>
+                        <div class="percentage-container">
+                            <svg class="momentum-icon" viewBox="0 0 24 24"><path d="M22 7l-9.5 9.5-6-6L2 15M16 7h6v6"/></svg>
+                            <span class="percentage">${main.prob}%</span>
+                        </div>
                         <div class="text">${group.title}<span class="choice-label">${main.choice}</span></div>
-                        ${hasMore ? `<span style="color:var(--accent); font-weight:bold; margin-right:5px;">+</span>` : ''}
+                        ${hasMore ? `<span style="color:var(--accent); font-weight:bold; margin-right:10px;">+</span>` : ''}
                     </div>
                     <a href="${betUrl}" target="_blank" class="bet-btn" onclick="event.stopPropagation()">Wanna Bet?</a>
                 </div>
@@ -283,29 +218,15 @@
                         </div>
                     `).join('')}
                 </div>
-            </div>`;
-            list.insertAdjacentHTML('beforeend', html);
+            </div>`);
         });
         currentIndex += itemsPerPage;
         document.getElementById('load-more-btn').style.display = (currentIndex >= filteredData.length) ? "none" : "block";
     }
 
-    window.toggleGroup = function(id) {
-        const el = document.getElementById(id);
-        el.style.display = (el.style.display === "block") ? "none" : "block";
-    };
-
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW Registered'));
-        });
-    }
-
-    (async () => {
-        const success = await fetchData();
-        if(success) renderInitial();
-        setInterval(async () => { await fetchData(); }, 60000);
-    })();
+    window.toggleGroup = (id) => { const el = document.getElementById(id); el.style.display = (el.style.display === "block") ? "none" : "block"; };
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
+    (async () => { if(await fetchData()) renderInitial(); setInterval(async () => { await fetchData(); renderInitial(); }, 60000); })();
 </script>
 </body>
 </html>

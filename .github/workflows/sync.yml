@@ -1,21 +1,27 @@
 name: Hourly Odds Update
+
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 * * * *'
-permissions:
-  contents: write
+    - cron: '0 * * * *' # Runs exactly every hour
+  workflow_dispatch:      # Allows you to run it manually for testing
+
 jobs:
-  update:
+  update-data:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Fetch
-        run: curl -v -L -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" -H "Accept: application/json" "https://gamma-api.polymarket.com/events?active=true&closed=false&limit=500" -o data.json
-      - name: Save
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Polymarket Data
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          curl -L -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" \
+          "https://gamma-api.polymarket.com/events?active=true&closed=false&limit=500" \
+          -o data.json
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data.json
-          git commit -m "Sync Live Odds" || exit 0
+          git commit -m "Update odds data [automated]" || exit 0
           git push

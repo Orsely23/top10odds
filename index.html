@@ -7,68 +7,111 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-C7D4T0JH70');
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OddsPulse | Real-Time Pulse</title>
-    <style>
-        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text-main: #f0f6fc; --text-dim: #8b949e; --accent: #00ff88; }
-        body.bright-mode { --bg: #ffffff; --card: #f6f8fa; --border: #d0d7de; --text-main: #1f2328; --text-dim: #57606a; --accent: #00a35c; }
-        * { box-sizing: border-box; }
-        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
-        .container { max-width: 800px; margin: 0 auto; }
-        header { text-align: center; padding: 20px 0; }
-        h1 { font-size: 1.8rem; text-transform: uppercase; margin: 0; cursor: pointer; letter-spacing: -1px; }
-        #status { font-size: 0.75rem; color: var(--accent); font-weight: bold; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        #search-input { width: 100%; padding: 16px 22px; background: var(--card); border: 2px solid var(--border); border-radius: 50px; color: var(--text-main); font-size: 1.1rem; margin: 15px 0; outline: none; }
-        
-        .event-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; transition: 0.2s; }
-        .event-group:hover { border-color: var(--accent); }
-        .main-market { display: flex; align-items: center; padding: 14px; gap: 10px; cursor: pointer; }
-        
-        .perc-box { display: flex; align-items: center; justify-content: flex-end; min-width: 120px; flex-shrink: 0; }
-        .percentage { color: var(--accent); font-size: 2.2rem; font-weight: 800; line-height: 1; }
-        .trending-icon { width: 24px; height: 24px; stroke: var(--accent); fill: none; stroke-width: 3; margin-right: 8px; }
+   <script>
+    let allGroupedData = []; 
+    let filteredData = [];   
+    let currentIndex = 0; 
 
-        .text { flex: 1; min-width: 0; font-size: 1.1rem; font-weight: 600; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .choice-label { display: block; font-size: 0.85rem; color: var(--text-dim); font-weight: 400; margin-top: 4px; }
+    async function init() {
+        const statusEl = document.getElementById('status');
+        try {
+            const response = await fetch('data.json?v=' + Date.now(), { cache: "no-store" });
+            if (!response.ok) throw new Error("404");
+            const rawData = await response.json();
+            const dataArray = Array.isArray(rawData) ? rawData : (rawData.data || []);
+            
+            if (dataArray.length === 0) throw new Error("EMPTY_DATA");
 
-        .btn-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        .vol-pill { background: rgba(139,148,158,0.15); border: 1px solid var(--border); color: var(--text-dim); padding: 9px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 800; }
-        .bet-btn { background: var(--accent); color: #ffffff !important; padding: 12px 20px; border-radius: 8px; font-size: 0.95rem; font-weight: 900; text-decoration: none; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+            const groups = {};
+            dataArray.forEach(e => {
+                if (!e.markets || !e.title) return;
+                const title = e.title.replace(/by ___ \?/g, "").trim();
+                const vol24 = parseFloat(e.volume24hr || 0);
 
-        .sub-markets { display: none; background: rgba(0,0,0,0.2); border-top: 1px solid var(--border); padding: 14px; }
-        .sub-item { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
-        .sub-item:last-child { border-bottom: none; }
-        
-        #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: #000; width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: none; z-index: 1000; }
+                // CATEGORY BRAIN - STICKIER RULES
+                let cat = 'gen';
+                const t = title.toLowerCase();
+                
+                // US Politics Keywords
+                if (t.includes('trump') || t.includes('election') || t.includes('biden') || t.includes('senate') || t.includes('white house') || t.includes('republican') || t.includes('democrat')) {
+                    cat = 'us';
+                } 
+                // World Politics Keywords
+                else if (t.includes('israel') || t.includes('ukraine') || t.includes('china') || t.includes('parliament') || t.includes('putin') || t.includes('gaza') || t.includes('nato') || t.includes('iran')) {
+                    cat = 'world';
+                } 
+                // Sports Keywords
+                else if (t.includes('nba') || t.includes('nfl') || t.includes('soccer') || t.includes('fifa') || t.includes('champions league') || t.includes('ufc')) {
+                    cat = 'sports';
+                }
 
-        @media (max-width: 600px) {
-            .percentage { font-size: 1.9rem; }
-            .perc-box { min-width: 95px; }
-            .text { font-size: 1rem; white-space: normal; }
-            .vol-pill { padding: 7px 11px; font-size: 0.75rem; }
-            .bet-btn { padding: 11px 15px; font-size: 0.85rem; }
+                e.markets.forEach(m => {
+                    let p = 0;
+                    try { 
+                        let prices = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
+                        p = Array.isArray(prices) ? prices[0] : (m.price || 0);
+                    } catch(err) { p = 0; }
+                    
+                    const prob = Math.round(parseFloat(p) * 100);
+                    if (prob < 5 || prob > 95) return;
+                    
+                    if (!groups[title]) {
+                        groups[title] = { 
+                            title, 
+                            slug: e.slug, 
+                            vol: parseFloat(e.volume || 0), 
+                            vol24, 
+                            cat, 
+                            markets: [] 
+                        };
+                    }
+                    groups[title].markets.push({ prob, choice: m.groupItemTitle || "Yes" });
+                });
+            });
+
+            // THE NEW BRAIN: BUCKET SORTING
+            const sortedByBuzz = Object.values(groups).sort((a,b) => b.vol24 - a.vol24);
+            
+            let usBucket = sortedByBuzz.filter(m => m.cat === 'us');
+            let worldBucket = sortedByBuzz.filter(m => m.cat === 'world');
+            let sportsBucket = sortedByBuzz.filter(m => m.cat === 'sports');
+            let genBucket = sortedByBuzz.filter(m => m.cat === 'gen');
+
+            let finalSelection = [];
+            let counts = { us: 0, world: 0, sports: 0 };
+
+            // 1. Mandatory Politics (2 US, 2 World)
+            finalSelection.push(...usBucket.slice(0, 2));
+            counts.us = 2;
+            finalSelection.push(...worldBucket.slice(0, 2));
+            counts.world = 2;
+
+            // 2. Mandatory Sports (Max 3)
+            finalSelection.push(...sportsBucket.slice(0, 3));
+            counts.sports = 3;
+
+            // 3. Fill the rest with General Buzz (up to 30 items)
+            // Combined remaining items sorted by volume
+            let remaining = [
+                ...usBucket.slice(2), 
+                ...worldBucket.slice(2), 
+                ...genBucket
+            ].sort((a,b) => b.vol24 - a.vol24);
+
+            finalSelection.push(...remaining.slice(0, 25));
+
+            // Final Sort for the Display: Highest Buzz overall at the top
+            allGroupedData = finalSelection.sort((a,b) => b.vol24 - a.vol24);
+            
+            statusEl.innerText = "SYSTEM LIVE";
+            render();
+        } catch (e) {
+            statusEl.innerText = "REFRESHING PULSE...";
+            setTimeout(init, 5000);
         }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <header>
-        <h1 onclick="location.reload()">OddsPulse</h1>
-        <div id="status">Syncing Pulse...</div>
-    </header>
-
-    <input type="text" id="search-input" placeholder="Search Momentum..." onkeyup="handleSearch()">
-    <div id="odds-list"></div>
-    <button id="load-more-btn" style="width:100%; padding:18px; background:var(--card); color:var(--accent); border:1px solid var(--accent); border-radius:50px; margin:30px 0; cursor:pointer; display:none; font-weight:bold;" onclick="loadNext()">Load More</button>
-</div>
-
-<button id="back-to-top" onclick="scrollToTop()">↑</button>
-
-<script>
+    }
+    init();
+</script>
     let allGroupedData = []; 
     let filteredData = [];   
     let currentIndex = 0; 
@@ -188,3 +231,4 @@
 </script>
 </body>
 </html>
+
